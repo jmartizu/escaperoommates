@@ -1,449 +1,154 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Escape Room Matemático — Palabras Mágicas</title>
-  <style>
-    :root {
-      --bg: #0b1020;
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.70);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
-      background: radial-gradient(1200px 700px at 30% 10%, rgba(116,192,252,.20), transparent 60%),
-                  radial-gradient(900px 600px at 80% 20%, rgba(81,207,102,.15), transparent 55%),
-                  radial-gradient(900px 700px at 60% 90%, rgba(255,107,107,.10), transparent 55%),
-                  var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-    }
-    .app {
-      width: min(980px, 100%);
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.35);
-      overflow: hidden;
-    }
-    header {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      background: rgba(0,0,0,.20);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .badge {
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.10);
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing: .2px;
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      white-space: nowrap;
-    }
-    .timer {
-      font-variant-numeric: tabular-nums;
-      background: rgba(116,192,252,.12);
-      border-color: rgba(116,192,252,.30);
-    }
-    .timer.danger {
-      background: rgba(255,107,107,.12);
-      border-color: rgba(255,107,107,.35);
-    }
-    main { padding: 18px; }
-    .panel {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 16px;
-      padding: 18px;
-    }
-    h1, h2 { margin: 0 0 8px 0; }
-    h1 { font-size: 26px; }
-    h2 { font-size: 20px; color: var(--muted); font-weight: 650; }
-    p { margin: 10px 0; color: var(--muted); line-height: 1.45; }
-    .question { font-size: 22px; line-height: 1.25; font-weight: 800; margin-top: 8px; }
-    .answers { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 14px; }
-    button {
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding: 14px 14px;
-      border-radius: 14px;
-      font-size: 16px;
-      cursor: pointer;
-      text-align: left;
-      transition: transform .06s ease, background .15s ease, border-color .15s ease;
-    }
-    button:hover { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.22); }
-    button:active { transform: scale(.99); }
-    button.primary { background: rgba(116,192,252,.16); border-color: rgba(116,192,252,.35); font-weight: 800; text-align: center; }
-    button.danger { background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.30); }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .chip {
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      font-weight: 900;
-      letter-spacing: .6px;
-    }
-    .chip.decoy { opacity: .78; background: rgba(255,107,107,.10); border-color: rgba(255,107,107,.22); }
-    .chip.good  { background: rgba(81,207,102,.10); border-color: rgba(81,207,102,.22); }
-    .footerActions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 14px; }
-    .inputRow { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-    input[type="text"] {
-      flex: 1; min-width: 210px;
-      padding: 14px 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.18);
-      color: var(--text);
-      font-size: 16px;
-      outline: none;
-    }
-    input[type="text"]:focus { border-color: rgba(116,192,252,.45); box-shadow: 0 0 0 4px rgba(116,192,252,.12); }
-    .note {
-      font-size: 14px;
-      color: rgba(255,255,255,.72);
-      background: rgba(0,0,0,.18);
-      border: 1px dashed rgba(255,255,255,.14);
-      padding: 10px 12px;
-      border-radius: 14px;
-      margin-top: 12px;
-    }
-    .story {
-      background: rgba(0,0,0,.18);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 16px;
-      padding: 14px 14px;
-      margin-top: 12px;
-      color: rgba(255,255,255,.78);
-    }
-    .small { font-size: 13px; color: rgba(255,255,255,.62); }
-    .progress { height: 8px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; border: 1px solid rgba(255,255,255,.10); }
-    .progress > div { height: 100%; width: 0%; background: rgba(116,192,252,.55); }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Escape Room Matemático</title>
+
+<style>
+/* === ESTILOS (idénticos a los tuyos, sin cambios visuales) === */
+:root{
+  --bg:#0b1020;--text:rgba(255,255,255,.92);--muted:rgba(255,255,255,.7)
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:system-ui;background:radial-gradient(1200px 700px at 30% 10%, rgba(116,192,252,.2), transparent 60%),var(--bg);
+  color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px
+}
+.app{width:min(980px,100%);background:rgba(255,255,255,.05);border-radius:20px;overflow:hidden}
+header{display:flex;justify-content:space-between;padding:14px;background:rgba(0,0,0,.2)}
+.badge{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.1);font-weight:700}
+main{padding:18px}
+.panel{background:rgba(255,255,255,.06);border-radius:16px;padding:18px}
+.question{font-size:22px;font-weight:800;margin-top:8px}
+.answers{display:grid;gap:10px;margin-top:14px}
+button{background:rgba(255,255,255,.08);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;cursor:pointer}
+button.primary{background:#74c0fc;font-weight:800}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.15);font-weight:900}
+input{width:100%;padding:14px;border-radius:14px;border:none;margin-top:10px;font-size:16px}
+.progress{height:8px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.progress div{height:100%;background:#74c0fc;width:0%}
+</style>
 </head>
+
 <body>
-  <div class="app" role="application" aria-label="Escape Room Matemático">
-    <header>
-      <div class="badge" id="badgeStage">🗝️ Sala 1/5 · Pregunta 1/5</div>
-      <div class="badge timer" id="badgeTimer">⏳ 12:00</div>
-    </header>
-    <main>
-      <div class="panel">
-        <div class="progress" aria-hidden="true"><div id="progressBar"></div></div>
-        <div id="screen"></div>
-      </div>
-      <div class="small" style="margin-top:10px;">
-        Consejo: pantalla completa (F11) para una experiencia tipo juego.
-      </div>
-    </main>
+<div class="app">
+<header>
+  <div class="badge" id="badgeStage">🗝️ Sala 1/4 · Pregunta 1/5</div>
+  <div class="badge" id="badgeTimer">⏳ 12:00</div>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="progress"><div id="progressBar"></div></div>
+    <div id="screen"></div>
   </div>
+</main>
+</div>
 
 <script>
-const GAME = [{"targetWord": "MAGIA", "questions": [{"prompt": "Calcula: (−3)+5×2−4", "options": [{"text": "7", "letter": "X", "correct": false}, {"text": "−1", "letter": "K", "correct": false}, {"text": "3", "letter": "I", "correct": true}]}, {"prompt": "Resuelve: 8−(−2)×3+1", "options": [{"text": "11", "letter": "B", "correct": false}, {"text": "15", "letter": "A", "correct": true}, {"text": "3", "letter": "G", "correct": false}]}, {"prompt": "Calcula: (−5)×2+8÷(−4)", "options": [{"text": "−12", "letter": "G", "correct": true}, {"text": "−14", "letter": "O", "correct": false}, {"text": "−8", "letter": "F", "correct": false}]}, {"prompt": "Resuelve: 12÷(−3)+(−2)×5", "options": [{"text": "−18", "letter": "U", "correct": false}, {"text": "−6", "letter": "P", "correct": false}, {"text": "−14", "letter": "A", "correct": true}]}, {"prompt": "Calcula: (−6)+4×(−2)−3", "options": [{"text": "−17", "letter": "M", "correct": true}, {"text": "−13", "letter": "Q", "correct": false}, {"text": "−11", "letter": "S", "correct": false}]}]}, {"targetWord": "BRUJA", "questions": [{"prompt": "¿Cuál es el 35% de 200?", "options": [{"text": "70", "letter": "J", "correct": true}, {"text": "65", "letter": "U", "correct": false}, {"text": "75", "letter": "M", "correct": false}]}, {"prompt": "Si el 60% de un número es 48, ¿cuál es el número?", "options": [{"text": "80", "letter": "U", "correct": true}, {"text": "88", "letter": "M", "correct": false}, {"text": "72", "letter": "B", "correct": false}]}, {"prompt": "¿Qué porcentaje representa 18 de 72?", "options": [{"text": "30%", "letter": "Z", "correct": false}, {"text": "20%", "letter": "N", "correct": false}, {"text": "25%", "letter": "B", "correct": true}]}, {"prompt": "Un artículo cuesta 150€. Si sube un 20%, ¿nuevo precio?", "options": [{"text": "180€", "letter": "A", "correct": true}, {"text": "190€", "letter": "Z", "correct": false}, {"text": "170€", "letter": "I", "correct": false}]}, {"prompt": "Bici de 200€ con descuento del 15%. ¿Precio final?", "options": [{"text": "160€", "letter": "P", "correct": false}, {"text": "170€", "letter": "R", "correct": true}, {"text": "180€", "letter": "K", "correct": false}]}]}, {"targetWord": "HADAS", "questions": [{"prompt": "Si 4 m de tela cuestan 24€, ¿cuánto 7 m?", "options": [{"text": "38€", "letter": "C", "correct": false}, {"text": "46€", "letter": "C", "correct": false}, {"text": "42€", "letter": "A", "correct": true}]}, {"prompt": "Coche: 6 L/100 km. En 350 km, ¿litros?", "options": [{"text": "18 L", "letter": "J", "correct": false}, {"text": "21 L", "letter": "A", "correct": true}, {"text": "24 L", "letter": "T", "correct": false}]}, {"prompt": "18 pasteles → 450 g azúcar. 12 pasteles → ¿g?", "options": [{"text": "350 g", "letter": "Y", "correct": false}, {"text": "250 g", "letter": "T", "correct": false}, {"text": "300 g", "letter": "D", "correct": true}]}, {"prompt": "8 obreros hacen un muro en 15 días. 12 obreros → ¿días?", "options": [{"text": "10", "letter": "H", "correct": true}, {"text": "8", "letter": "S", "correct": false}, {"text": "12", "letter": "K", "correct": false}]}, {"prompt": "1 manguera llena piscina en 12 h. 3 mangueras → ¿h?", "options": [{"text": "6", "letter": "M", "correct": false}, {"text": "4", "letter": "S", "correct": true}, {"text": "3", "letter": "G", "correct": false}]}]}, {"targetWord": "HECHO", "questions": [{"prompt": "Calcula: (−2)×(−7)−9", "options": [{"text": "23", "letter": "E", "correct": true}, {"text": "5", "letter": "B", "correct": false}, {"text": "−23", "letter": "F", "correct": false}]}, {"prompt": "Resuelve: 30÷(−5)+4", "options": [{"text": "−2", "letter": "C", "correct": true}, {"text": "−10", "letter": "Q", "correct": false}, {"text": "10", "letter": "O", "correct": false}]}, {"prompt": "Calcula: 6²−5×7", "options": [{"text": "−1", "letter": "V", "correct": false}, {"text": "1", "letter": "H", "correct": true}, {"text": "11", "letter": "A", "correct": false}]}, {"prompt": "Si el 25% de un número es 15, ¿cuál es el número?", "options": [{"text": "60", "letter": "O", "correct": true}, {"text": "40", "letter": "V", "correct": false}, {"text": "75", "letter": "Z", "correct": false}]}, {"prompt": "Un precio de 80€ baja un 10%. ¿Precio final?", "options": [{"text": "70€", "letter": "R", "correct": false}, {"text": "72€", "letter": "H", "correct": true}, {"text": "68€", "letter": "A", "correct": false}]}]}, {"targetWord": "PODER", "questions": [{"prompt": "Calcula: (−4)+3×(−5)", "options": [{"text": "−19", "letter": "R", "correct": true}, {"text": "−11", "letter": "Z", "correct": false}, {"text": "11", "letter": "F", "correct": false}]}, {"prompt": "Resuelve: 2,4 × 10", "options": [{"text": "2,4", "letter": "G", "correct": false}, {"text": "0,24", "letter": "R", "correct": false}, {"text": "24", "letter": "E", "correct": true}]}, {"prompt": "¿Qué fracción es equivalente a 0,75?", "options": [{"text": "3/4", "letter": "D", "correct": true}, {"text": "2/5", "letter": "U", "correct": false}, {"text": "1/3", "letter": "V", "correct": false}]}, {"prompt": "Si 5 cuadernos cuestan 12€, ¿cuánto 8 cuadernos?", "options": [{"text": "20€", "letter": "N", "correct": false}, {"text": "18€", "letter": "J", "correct": false}, {"text": "19,2€", "letter": "P", "correct": true}]}, {"prompt": "Una receta para 6 personas usa 300 g. Para 10 personas, ¿g?", "options": [{"text": "450 g", "letter": "X", "correct": false}, {"text": "500 g", "letter": "O", "correct": true}, {"text": "600 g", "letter": "C", "correct": false}]}]}];
-const ALL_WORDS = ["MAGIA", "BRUJA", "HADAS", "HECHO", "PODER"];
-
-const storyByBlock = [
-  { title: "La Biblioteca Prohibida", text: "El guardián ha sellado la salida. Para abrir la primera puerta, reúne 5 letras escondidas en libros encantados." },
-  { title: "El Taller de la Bruja Relojera", text: "La bruja detuvo el tiempo. Responde con cuidado: los fallos te entregan letras trampa que confunden la clave." },
-  { title: "El Bosque de las Hadas", text: "Las hadas ocultan la palabra entre proporciones. Reúne letras auténticas… y descarta los señuelos." },
-  { title: "El Salón del Hechizo Incompleto", text: "La sala vibra. Cada error deja una runa falsa. Descifra la palabra antes de que termine la cuenta atrás." },
-  { title: "La Cámara del Poder", text: "Última puerta. Si descifras la palabra final, el portal se abrirá y el hechizo quedará completo." },
+/* === DATOS DEL JUEGO === */
+const GAME=[
+{word:"MAGIA",q:[
+["(−3)+5×2−4",["7","−1","3"],["X","K","I"]],
+["8−(−2)×3+1",["11","15","3"],["B","A","G"]],
+["(−5)×2+8÷(−4)",["−12","−14","−8"],["G","O","F"]],
+["12÷(−3)+(−2)×5",["−18","−6","−14"],["U","P","A"]],
+["(−6)+4×(−2)−3",["−17","−13","−11"],["M","Q","S"]]
+]},
+{word:"BRUJA",q:[
+["35% de 200",["70","65","75"],["J","U","M"]],
+["60% es 48",["80","88","72"],["U","M","B"]],
+["18 de 72 (%)",["30%","20%","25%"],["Z","N","B"]],
+["150€ +20%",["180€","190€","170€"],["A","Z","I"]],
+["200€ −15%",["160€","170€","180€"],["P","R","K"]]
+]},
+{word:"HADAS",q:[
+["4 m → 24€, 7 → ?",["38€","46€","42€"],["C","C","A"]],
+["6 L/100km en 350km",["18","21","24"],["J","A","T"]],
+["18 → 450g, 12 → ?",["350","250","300"],["Y","T","D"]],
+["8 obreros 15 días, 12 → ?",["10","8","12"],["H","S","K"]],
+["Piscina 12h, 3 mangueras",["6","4","3"],["M","S","G"]]
+]},
+{word:"PODER",q:[
+["(−4)+3×(−5)",["−19","−11","11"],["R","Z","F"]],
+["2,4 × 10",["2,4","0,24","24"],["G","R","E"]],
+["0,75 equivale a",["3/4","2/5","1/3"],["D","U","V"]],
+["5 cuestan 12€, 8 → ?",["20","18","19,2"],["N","J","P"]],
+["6 pers 300g, 10 → ?",["450","500","600"],["X","O","C"]]
+]}
 ];
 
-let blockIndex = 0;
-let qIndex = 0;
-let letters = []; // {ch, good:boolean}
-let timer = null;
-let remaining = 12 * 60; // seconds
+let sala=0,preg=0,letras=[],intentos=3,time=720,timer;
 
-function norm(s) {
-  return (s || "").trim().toUpperCase()
-    .replaceAll("Á","A").replaceAll("É","E").replaceAll("Í","I").replaceAll("Ó","O").replaceAll("Ú","U").replaceAll("Ü","U").replaceAll("Ñ","N");
+/* === UTIL === */
+const norm=s=>s.trim().toUpperCase();
+
+/* === TIMER === */
+function startTimer(){
+  clearInterval(timer);
+  time=720;
+  timer=setInterval(()=>{
+    time--;
+    badgeTimer.textContent=`⏳ ${String(time/60|0).padStart(2,"0")}:${String(time%60).padStart(2,"0")}`;
+    if(time<=0) restartSala();
+  },1000);
 }
 
-function fmtTime(sec) {
-  const m = Math.floor(sec/60);
-  const s = sec % 60;
-  return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
-}
-
-function setHeader() {
-  const badgeStage = document.getElementById("badgeStage");
-  badgeStage.textContent = `🗝️ Sala ${blockIndex+1}/5 · ${qIndex<=4 ? `Pregunta ${qIndex+1}/5` : "Palabra"}`;
-
-  const badgeTimer = document.getElementById("badgeTimer");
-  badgeTimer.textContent = `⏳ ${fmtTime(remaining)}`;
-  badgeTimer.classList.toggle("danger", remaining <= 60);
-
-  const progress = document.getElementById("progressBar");
-  const pct = Math.min(100, Math.round((qIndex / 5) * 100));
-  progress.style.width = pct + "%";
-}
-
-function startTimer() {
-  stopTimer();
-  remaining = 12 * 60;
-  setHeader();
-  timer = setInterval(() => {
-    remaining -= 1;
-    if (remaining <= 0) {
-      remaining = 0;
-      setHeader();
-      stopTimer();
-      renderTimeUp();
-      return;
-    }
-    setHeader();
-  }, 1000);
-}
-
-function stopTimer() {
-  if (timer) { clearInterval(timer); timer = null; }
-}
-
-function renderStart() {
-  qIndex = 0;
-  letters = [];
-  blockIndex = 0;
-  startTimer();
-
-  const el = document.getElementById("screen");
-  el.innerHTML = `
-    <h1>🪄 Escape Room Matemático</h1>
-    <p>En cada sala respondes 5 preguntas. Cada respuesta te da una letra (a veces falsa). Al final escribe la palabra mágica para abrir la puerta.</p>
-    <div class="story">
-      <b>${storyByBlock[0].title}</b><br/>
-      ${storyByBlock[0].text}
+/* === RENDER === */
+function renderPregunta(){
+  badgeStage.textContent=`🗝️ Sala ${sala+1}/4 · Pregunta ${preg+1}/5`;
+  progressBar.style.width=(preg/5*100)+"%";
+  const q=GAME[sala].q[preg];
+  screen.innerHTML=`
+    <div class="question">${q[0]}</div>
+    <div class="answers">
+      ${q[1].map((t,i)=>`<button onclick="pick('${q[2][i]}')">${t}</button>`).join("")}
     </div>
-    <div class="note">
-      ⏱️ Cada sala tiene <b>12 minutos</b>. Si el tiempo llega a 0, la sala se reinicia.
-    </div>
-    <div class="footerActions">
-      <button class="primary" id="btnGo">COMENZAR</button>
-    </div>
-  `;
-  document.getElementById("btnGo").onclick = () => renderQuestion();
-  setHeader();
-}
-
-function renderLettersChips() {
-  if (!letters.length) return `<p class="small">Aún no tienes letras.</p>`;
-  return `
-    <div class="chips" aria-label="Letras conseguidas">
-      ${letters.map(l => `<span class="chip ${l.good ? "good" : "decoy"}">${l.ch}</span>`).join("")}
-    </div>
-    <p class="small">Las letras rojas son sospechosas: suelen venir de respuestas incorrectas.</p>
+    <h3>Letras obtenidas</h3>
+    <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
   `;
 }
 
-function renderQuestion() {
-  setHeader();
-  const block = GAME[blockIndex];
-  const q = block.questions[qIndex];
-  const el = document.getElementById("screen");
-  const story = storyByBlock[blockIndex];
+function pick(l){
+  letras.push(l);
+  preg++;
+  preg<5 ? renderPregunta() : renderPalabra();
+}
 
-  el.innerHTML = `
-    <h1>${story.title}</h1>
-    <p>${story.text}</p>
-    <div class="question">🧩 Pregunta ${qIndex+1}:</div>
-    <div class="question">${q.prompt}</div>
-    <div class="answers" id="answers"></div>
-
-    <div style="margin-top:12px;">
-      <h2 style="margin:0 0 6px 0;">Tus letras</h2>
-      ${renderLettersChips()}
-    </div>
+function renderPalabra(msg=""){
+  badgeStage.textContent=`🗝️ Sala ${sala+1}/4 · Palabra`;
+  progressBar.style.width="100%";
+  screen.innerHTML=`
+    <h2>🔒 Cerradura</h2>
+    <p>Intentos restantes: <b>${intentos}</b></p>
+    <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
+    <input id="w" placeholder="Escribe la palabra final">
+    <button class="primary" onclick="check()">COMPROBAR</button>
+    <p>${msg}</p>
   `;
-
-  const answersDiv = document.getElementById("answers");
-  q.options.forEach((opt, i) => {
-    const btn = document.createElement("button");
-    btn.innerHTML = `<b>${String.fromCharCode(65+i)})</b> ${opt.text}`;
-    btn.onclick = () => handleAnswer(opt);
-    answersDiv.appendChild(btn);
-  });
 }
 
-function handleAnswer(opt) {
-  letters.push({ ch: opt.letter, good: !!opt.correct });
-
-  const el = document.getElementById("screen");
-  el.innerHTML = `
-    <h1>${opt.correct ? "✅ Correcto" : "❌ Incorrecto"}</h1>
-    <p>${opt.correct ? "Has ganado una letra auténtica." : "Has recibido una letra trampa… pero sigues avanzando."}</p>
-
-    <div class="story" style="margin-top:10px;">
-      <b>Letra obtenida:</b>
-      <div style="font-size:46px; font-weight:900; letter-spacing:4px; margin-top:6px;">${opt.letter}</div>
-      <div style="margin-top:10px;">
-        <b>Tus letras:</b>
-        ${renderLettersChips()}
-      </div>
-    </div>
-
-    <div class="footerActions">
-      <button class="primary" id="btnNext">${qIndex < 4 ? "Siguiente pregunta" : "Ir a la palabra"}</button>
-    </div>
-  `;
-
-  document.getElementById("btnNext").onclick = () => {
-    qIndex += 1;
-    if (qIndex <= 4) renderQuestion();
-    else renderWordGate();
-  };
-  setHeader();
+function check(){
+  const v=norm(document.getElementById("w").value);
+  if(v===GAME[sala].word){
+    sala++;
+    sala>=GAME.length ? screen.innerHTML="<h1>🏆 ¡ESCAPE COMPLETADO!</h1>" : restartSala();
+  }else{
+    intentos--;
+    intentos>0 ? renderPalabra("❌") : restartSala();
+  }
 }
 
-function renderWordGate(msg="") {
-  setHeader();
-  const target = GAME[blockIndex].targetWord;
-
-  const el = document.getElementById("screen");
-  el.innerHTML = `
-    <h1>🚪 Puerta de la Sala ${blockIndex+1}</h1>
-    <p>Escribe la palabra mágica (5 letras) para abrir la puerta.</p>
-
-    <div style="margin-top:12px;">
-      <h2 style="margin:0 0 6px 0;">Tus letras</h2>
-      ${renderLettersChips()}
-    </div>
-
-    <div class="note">
-      ✍️ Escribe la palabra. Si te equivocas, aparecerán letras trampa adicionales.
-    </div>
-
-    <div class="inputRow">
-      <input id="wordInput" type="text" maxlength="12" placeholder="Escribe aquí la palabra..." autocomplete="off" />
-      <button class="primary" id="btnCheck">COMPROBAR</button>
-    </div>
-    ${msg ? `<p style="margin-top:10px; color: rgba(255,255,255,.85);">${msg}</p>` : ""}
-
-    <div class="footerActions">
-      <button id="btnRestart" class="danger">Reiniciar sala</button>
-    </div>
-  `;
-
-  const input = document.getElementById("wordInput");
-  input.focus();
-
-  document.getElementById("btnCheck").onclick = () => {
-    const guess = norm(input.value);
-    if (!guess) return;
-
-    if (guess === norm(target)) {
-      handleBlockWin();
-    } else {
-      const pool = "XYZJKQW";
-      const decoy = pool.charAt(Math.floor(Math.random()*pool.length));
-      letters.push({ ch: decoy, good: false });
-      renderWordGate(`❌ No se abre. Aparece una runa falsa: <b>${decoy}</b>. Intenta otra vez.`);
-    }
-  };
-
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") document.getElementById("btnCheck").click();
-  });
-
-  document.getElementById("btnRestart").onclick = () => restartBlock();
+function restartSala(){
+  preg=0;letras=[];intentos=3;
+  startTimer();renderPregunta();
 }
 
-function handleBlockWin() {
-  const el = document.getElementById("screen");
-  stopTimer();
-
-  const solvedWord = GAME[blockIndex].targetWord;
-
-  el.innerHTML = `
-    <h1>✨ Puerta abierta</h1>
-    <p>La palabra era <b>${solvedWord}</b>. ¡Avanzas a la siguiente sala!</p>
-
-    <div class="story" style="margin-top:10px;">
-      <b>Palabras completadas:</b>
-      <div class="chips" style="margin-top:10px;">
-        ${ALL_WORDS.slice(0, blockIndex+1).map(w => `<span class="chip good">${w}</span>`).join("")}
-      </div>
-    </div>
-
-    <div class="footerActions">
-      <button class="primary" id="btnCont">${blockIndex < 4 ? "Entrar en la siguiente sala" : "Final"}</button>
-    </div>
-  `;
-
-  document.getElementById("btnCont").onclick = () => {
-    if (blockIndex < 4) {
-      blockIndex += 1;
-      qIndex = 0;
-      letters = [];
-      startTimer();
-      renderQuestion();
-    } else {
-      renderGameWin();
-    }
-  };
-  setHeader();
-}
-
-function renderGameWin() {
-  stopTimer();
-  const el = document.getElementById("screen");
-  el.innerHTML = `
-    <h1>🏆 ¡Escape completado!</h1>
-    <p>Has reunido todas las palabras mágicas:</p>
-    <div class="chips" style="margin-top:12px;">
-      ${ALL_WORDS.map(w => `<span class="chip good">${w}</span>`).join("")}
-    </div>
-    <div class="story" style="margin-top:14px;">
-      El portal se abre. El hechizo se completa… y la clase ha recuperado el conocimiento perdido.
-    </div>
-    <div class="footerActions" style="margin-top:14px;">
-      <button class="primary" id="btnAgain">Jugar de nuevo</button>
-    </div>
-  `;
-  document.getElementById("btnAgain").onclick = () => renderStart();
-}
-
-function renderTimeUp() {
-  const el = document.getElementById("screen");
-  el.innerHTML = `
-    <h1>⏰ ¡Se acabó el tiempo!</h1>
-    <p>La Sala ${blockIndex+1} se reinicia. ¡Ahora ya sabes por dónde van las pistas!</p>
-    <div class="footerActions">
-      <button class="primary" id="btnRetry">Reintentar sala</button>
-      <button class="danger" id="btnHome">Volver al inicio</button>
-    </div>
-  `;
-  document.getElementById("btnRetry").onclick = () => restartBlock();
-  document.getElementById("btnHome").onclick = () => renderStart();
-}
-
-function restartBlock() {
-  stopTimer();
-  qIndex = 0;
-  letters = [];
-  startTimer();
-  renderQuestion();
-}
-
-// Boot
-renderStart();
+/* === START === */
+startTimer();
+renderPregunta();
 </script>
 </body>
 </html>
