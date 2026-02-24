@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="es">
 <head>
@@ -6,299 +7,120 @@
 <title>Escape Room Matemático</title>
 
 <style>
-:root{
-  --bg:#0b1020;
-  --text:rgba(255,255,255,.92);
-  --muted:rgba(255,255,255,.7);
-}
+:root{--bg:#0b1020;--text:rgba(255,255,255,.92)}
 *{box-sizing:border-box}
 body{
-  margin:0;
-  font-family:system-ui,Segoe UI,Roboto,Arial;
-  background:radial-gradient(1200px 700px at 30% 10%, rgba(116,192,252,.2), transparent 60%),var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
+  margin:0;font-family:system-ui;background:
+  radial-gradient(1200px 700px at 30% 10%, rgba(116,192,252,.2), transparent 60%),
+  var(--bg);
+  color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:18px
 }
-.app{
-  width:min(980px,100%);
-  background:rgba(255,255,255,.05);
-  border-radius:20px;
-  overflow:hidden;
-}
-header{
-  display:flex;
-  justify-content:space-between;
-  padding:14px;
-  background:rgba(0,0,0,.2);
-}
-.badge{
-  padding:8px 12px;
-  border-radius:999px;
-  background:rgba(255,255,255,.1);
-  font-weight:700;
-}
+.app{width:min(980px,100%);background:rgba(255,255,255,.05);border-radius:20px;overflow:hidden}
+header{display:flex;justify-content:space-between;padding:14px;background:rgba(0,0,0,.2)}
+.badge{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.1);font-weight:700}
 main{padding:18px}
-.panel{
-  background:rgba(255,255,255,.06);
-  border-radius:16px;
-  padding:18px;
-}
-.question{
-  font-size:22px;
-  font-weight:800;
-  margin-top:8px;
-}
+.panel{background:rgba(255,255,255,.06);border-radius:16px;padding:18px}
+.question{font-size:22px;font-weight:800;margin-top:8px}
 .answers{display:grid;gap:10px;margin-top:14px}
-button{
-  background:rgba(255,255,255,.08);
-  color:white;
-  border:none;
-  padding:14px;
-  border-radius:14px;
-  font-size:16px;
-  cursor:pointer;
-}
+button{background:rgba(255,255,255,.08);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;cursor:pointer}
 button.primary{background:#74c0fc;font-weight:800}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.chip{
-  padding:8px 12px;
-  border-radius:999px;
-  background:rgba(255,255,255,.15);
-  font-weight:900;
-}
-input{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:none;
-  margin-top:10px;
-  font-size:16px;
-}
-.progress{
-  height:8px;
-  background:rgba(255,255,255,.1);
-  border-radius:999px;
-  overflow:hidden;
-  margin-bottom:12px;
-}
-.progress div{
-  height:100%;
-  background:#74c0fc;
-  width:0%;
-}
-.small { font-size: 13px; color: rgba(255,255,255,.62); margin-top:10px;}
+.chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.15);font-weight:900}
+input{width:100%;padding:14px;border-radius:14px;border:none;margin-top:10px;font-size:16px}
+.progress{height:8px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.progress div{height:100%;background:#74c0fc;width:0%}
 </style>
 </head>
 
 <body>
 <div class="app">
 <header>
-  <div class="badge" id="badgeStage">🗝️ Sala 1/4 · Pregunta 1/5</div>
-  <div class="badge" id="badgeTimer">⏳ 12:00</div>
+  <div class="badge" id="stage">🗝️ Sala 1/4 · Pregunta 1/5</div>
+  <div class="badge" id="timer">⏳ 12:00</div>
 </header>
 
 <main>
   <div class="panel">
-    <div class="progress"><div id="progressBar"></div></div>
+    <div class="progress"><div id="bar"></div></div>
     <div id="screen"></div>
   </div>
-  <div class="small">Consejo: pantalla completa (F11) para una experiencia tipo juego.</div>
 </main>
 </div>
 
 <script>
-/* ===== DATOS ===== */
-const GAME = [
-  {word:"MAGIA",q:[
-    ["(-3)+5×2-4",["7","-1","3"],["X","K","I"]],
-    ["8-(-2)×3+1",["11","15","3"],["B","A","G"]],
-    ["(-5)×2+8÷(-4)",["-12","-14","-8"],["G","O","F"]],
-    ["12÷(-3)+(-2)×5",["-18","-6","-14"],["U","P","A"]],
-    ["(-6)+4×(-2)-3",["-17","-13","-11"],["M","Q","S"]]
-  ]},
-  {word:"BRUJA",q:[
-    ["35% de 200",["70","65","75"],["J","U","M"]],
-    ["60% es 48",["80","88","72"],["U","M","B"]],
-    ["18 de 72 (%)",["30%","20%","25%"],["Z","N","B"]],
-    ["150€ +20%",["180€","190€","170€"],["A","Z","I"]],
-    ["200€ -15%",["160€","170€","180€"],["P","R","K"]]
-  ]},
-  {word:"HADAS",q:[
-    ["4 m → 24€, 7 → ?",["38","46","42"],["C","C","A"]],
-    ["6 L/100km en 350km",["18","21","24"],["J","A","T"]],
-    ["18 → 450g, 12 → ?",["350","250","300"],["Y","T","D"]],
-    ["8 obreros 15 días, 12 → ?",["10","8","12"],["H","S","K"]],
-    ["Piscina 12h, 3 mangueras",["6","4","3"],["M","S","G"]]
-  ]},
-  {word:"PODER",q:[
-    ["(-4)+3×(-5)",["-19","-11","11"],["R","Z","F"]],
-    ["2,4 × 10",["2,4","0,24","24"],["G","R","E"]],
-    ["0,75 equivale a",["3/4","2/5","1/3"],["D","U","V"]],
-    ["5 cuestan 12€, 8 → ?",["20","18","19,2"],["N","J","P"]],
-    ["6 pers 300g, 10 → ?",["450","500","600"],["X","O","C"]]
-  ]}
+const GAME=[
+{w:"MAGIA",q:[
+["(-3)+5*2-4",["7","-1","3"],["X","K","I"]],
+["8-(-2)*3+1",["11","15","3"],["B","A","G"]],
+["(-5)*2+8/(-4)",["-12","-14","-8"],["G","O","F"]],
+["12/(-3)+(-2)*5",["-18","-6","-14"],["U","P","A"]],
+["(-6)+4*(-2)-3",["-17","-13","-11"],["M","Q","S"]]
+]},
+{w:"BRUJA",q:[
+["35% de 200",["70","65","75"],["J","U","M"]],
+["60% es 48",["80","88","72"],["U","M","B"]],
+["18 de 72 (%)",["30%","20%","25%"],["Z","N","B"]],
+["150€ +20%",["180€","190€","170€"],["A","Z","I"]],
+["200€ -15%",["160€","170€","180€"],["P","R","K"]]
+]}
 ];
 
-/* ===== CAPTURA DE ELEMENTOS (FIX CHROME) ===== */
-const badgeStageEl = document.getElementById("badgeStage");
-const badgeTimerEl = document.getElementById("badgeTimer");
-const progressBarEl = document.getElementById("progressBar");
-const screenEl = document.getElementById("screen");
+let s=0,p=0,letras=[],intentos=3,t=720,clk;
+const stage=document.getElementById("stage");
+const timer=document.getElementById("timer");
+const bar=document.getElementById("bar");
+const screen=document.getElementById("screen");
 
-/* ===== ESTADO ===== */
-let sala = 0;
-let preg = 0;
-let letras = [];
-let intentos = 3;
-let tiempo = 12 * 60;
-let reloj = null;
-
-/* ===== TIMER ===== */
-function startTimer(){
-  stopTimer();
-  tiempo = 12 * 60;
-  renderHeader();
-  reloj = setInterval(() => {
-    tiempo--;
-    if (tiempo <= 0) {
-      tiempo = 0;
-      renderHeader();
-      reiniciarSala();
-      return;
-    }
-    renderHeader();
-  }, 1000);
+function start(){
+  clearInterval(clk);
+  t=720;
+  clk=setInterval(()=>{
+    t--; timer.textContent=`⏳ ${String(t/60|0).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`;
+    if(t<=0) resetSala();
+  },1000);
+  render();
 }
 
-function stopTimer(){
-  if (reloj) { clearInterval(reloj); reloj = null; }
-}
-
-function fmt(sec){
-  const m = Math.floor(sec/60);
-  const s = sec % 60;
-  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
-}
-
-function renderHeader(){
-  const totalSalas = GAME.length;
-  badgeStageEl.textContent =
-    `🗝️ Sala ${sala+1}/${totalSalas} · ${preg < 5 ? `Pregunta ${preg+1}/5` : "Palabra"}`;
-  badgeTimerEl.textContent = `⏳ ${fmt(tiempo)}`;
-
-  const pct = Math.min(100, Math.round((Math.min(preg,5) / 5) * 100));
-  progressBarEl.style.width = pct + "%";
-}
-
-/* ===== RENDER ===== */
-function renderPregunta(){
-  renderHeader();
-  const q = GAME[sala].q[preg];
-
-  screenEl.innerHTML = `
+function render(){
+  stage.textContent=`🗝️ Sala ${s+1}/4 · Pregunta ${p+1}/5`;
+  bar.style.width=(p/5*100)+"%";
+  const q=GAME[s].q[p];
+  screen.innerHTML=`
     <div class="question">${q[0]}</div>
     <div class="answers">
-      ${q[1].map((t,i)=>`<button type="button" data-letter="${q[2][i]}">${t}</button>`).join("")}
+      ${q[1].map((t,i)=>`<button onclick="pick('${q[2][i]}')">${t}</button>`).join("")}
     </div>
-
-    <h2 style="margin-top:14px;">Letras obtenidas</h2>
-    <div class="chips">
-      ${letras.length ? letras.map(l=>`<span class="chip">${l}</span>`).join("") : `<span style="color:var(--muted)">Aún no tienes letras.</span>`}
-    </div>
+    <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
   `;
-
-  // listeners (evita onclick inline y funciona siempre)
-  screenEl.querySelectorAll("button[data-letter]").forEach(btn => {
-    btn.addEventListener("click", () => elegir(btn.getAttribute("data-letter")));
-  });
 }
 
-function elegir(l){
-  // Siempre se obtiene una letra (sin decir si es correcta/falsa)
-  letras.push(l);
-  preg++;
-  if (preg < 5) renderPregunta();
-  else renderPalabra();
+function pick(l){
+  letras.push(l); p++;
+  p<5 ? render() : palabra();
 }
 
-function renderPalabra(msg=""){
-  renderHeader();
-  screenEl.innerHTML = `
-    <h1 style="margin:0 0 6px 0;">🔒 Cerradura</h1>
-    <p>Escribe la palabra final. Intentos restantes: <b>${intentos}</b></p>
-
-    <div class="chips">
-      ${letras.map(l=>`<span class="chip">${l}</span>`).join("")}
-    </div>
-
-    <input id="w" placeholder="Escribe la palabra final" autocomplete="off">
-    <button class="primary" id="btnCheck" type="button">COMPROBAR</button>
-    ${msg ? `<p style="margin-top:10px;">${msg}</p>` : ""}
-
-    <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
-      <button type="button" id="btnRestart">Reiniciar sala</button>
-    </div>
+function palabra(){
+  stage.textContent=`🗝️ Sala ${s+1}/4 · Palabra`;
+  bar.style.width="100%";
+  screen.innerHTML=`
+    <p>Intentos: ${intentos}</p>
+    <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
+    <input id="w"><button class="primary" onclick="check()">COMPROBAR</button>
   `;
-
-  const input = document.getElementById("w");
-  input.focus();
-
-  document.getElementById("btnCheck").addEventListener("click", comprobar);
-  document.getElementById("btnRestart").addEventListener("click", reiniciarSala);
-
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") comprobar();
-  });
 }
 
-function comprobar(){
-  const input = document.getElementById("w");
-  const v = (input?.value || "").toUpperCase().trim();
-
-  if (v === GAME[sala].word) {
-    sala++;
-    if (sala >= GAME.length) {
-      stopTimer();
-      progressBarEl.style.width = "100%";
-      badgeStageEl.textContent = `🏆 Final`;
-      screenEl.innerHTML = `
-        <h1>🏆 ¡ESCAPE COMPLETADO!</h1>
-        <p>¡Enhorabuena! Has superado todas las salas.</p>
-        <button class="primary" id="btnAgain" type="button">Jugar de nuevo</button>
-      `;
-      document.getElementById("btnAgain").addEventListener("click", () => {
-        sala = 0; preg = 0; letras = []; intentos = 3;
-        startTimer();
-        renderPregunta();
-      });
-    } else {
-      reiniciarSala(); // pasa a la siguiente sala (reinicia estado de sala)
-    }
-  } else {
-    intentos--;
-    if (intentos <= 0) {
-      reiniciarSala(); // falló 3 veces -> repite la sala
-    } else {
-      renderPalabra("❌"); // sin pistas extra
-    }
-  }
+function check(){
+  const v=document.getElementById("w").value.toUpperCase().trim();
+  if(v===GAME[s].w){s++; resetSala();}
+  else{intentos--; intentos>0?palabra():resetSala();}
 }
 
-function reiniciarSala(){
-  preg = 0;
-  letras = [];
-  intentos = 3;
-  startTimer();
-  renderPregunta();
+function resetSala(){
+  p=0;letras=[];intentos=3;
+  start();
 }
 
-/* ===== INICIO ===== */
-startTimer();
-renderPregunta();
+start();
 </script>
 </body>
 </html>
