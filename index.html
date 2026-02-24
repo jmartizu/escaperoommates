@@ -90,13 +90,14 @@ input{
   background:#74c0fc;
   width:0%;
 }
+.small { font-size: 13px; color: rgba(255,255,255,.62); margin-top:10px;}
 </style>
 </head>
 
 <body>
 <div class="app">
 <header>
-  <div class="badge" id="badgeStage">🗝️ Sala 1/5 · Pregunta 1/5</div>
+  <div class="badge" id="badgeStage">🗝️ Sala 1/4 · Pregunta 1/5</div>
   <div class="badge" id="badgeTimer">⏳ 12:00</div>
 </header>
 
@@ -105,105 +106,194 @@ input{
     <div class="progress"><div id="progressBar"></div></div>
     <div id="screen"></div>
   </div>
+  <div class="small">Consejo: pantalla completa (F11) para una experiencia tipo juego.</div>
 </main>
 </div>
 
 <script>
 /* ===== DATOS ===== */
 const GAME = [
-{word:"MAGIA",q:[
-["(−3)+5×2−4",["7","−1","3"],["X","K","I"]],
-["8−(−2)×3+1",["11","15","3"],["B","A","G"]],
-["(−5)×2+8÷(−4)",["−12","−14","−8"],["G","O","F"]],
-["12÷(−3)+(−2)×5",["−18","−6","−14"],["U","P","A"]],
-["(−6)+4×(−2)−3",["−17","−13","−11"],["M","Q","S"]]
-]},
-{word:"BRUJA",q:[
-["35% de 200",["70","65","75"],["J","U","M"]],
-["60% es 48",["80","88","72"],["U","M","B"]],
-["18 de 72 (%)",["30%","20%","25%"],["Z","N","B"]],
-["150€ +20%",["180€","190€","170€"],["A","Z","I"]],
-["200€ −15%",["160€","170€","180€"],["P","R","K"]]
-]},
-{word:"HADAS",q:[
-["4 m → 24€, 7 → ?",["38","46","42"],["C","C","A"]],
-["6 L/100km en 350km",["18","21","24"],["J","A","T"]],
-["18 → 450g, 12 → ?",["350","250","300"],["Y","T","D"]],
-["8 obreros 15 días, 12 → ?",["10","8","12"],["H","S","K"]],
-["Piscina 12h, 3 mangueras",["6","4","3"],["M","S","G"]]
-]},
-{word:"PODER",q:[
-["(−4)+3×(−5)",["−19","−11","11"],["R","Z","F"]],
-["2,4 × 10",["2,4","0,24","24"],["G","R","E"]],
-["0,75 equivale a",["3/4","2/5","1/3"],["D","U","V"]],
-["5 cuestan 12€, 8 → ?",["20","18","19,2"],["N","J","P"]],
-["6 pers 300g, 10 → ?",["450","500","600"],["X","O","C"]]
-]}
+  {word:"MAGIA",q:[
+    ["(-3)+5×2-4",["7","-1","3"],["X","K","I"]],
+    ["8-(-2)×3+1",["11","15","3"],["B","A","G"]],
+    ["(-5)×2+8÷(-4)",["-12","-14","-8"],["G","O","F"]],
+    ["12÷(-3)+(-2)×5",["-18","-6","-14"],["U","P","A"]],
+    ["(-6)+4×(-2)-3",["-17","-13","-11"],["M","Q","S"]]
+  ]},
+  {word:"BRUJA",q:[
+    ["35% de 200",["70","65","75"],["J","U","M"]],
+    ["60% es 48",["80","88","72"],["U","M","B"]],
+    ["18 de 72 (%)",["30%","20%","25%"],["Z","N","B"]],
+    ["150€ +20%",["180€","190€","170€"],["A","Z","I"]],
+    ["200€ -15%",["160€","170€","180€"],["P","R","K"]]
+  ]},
+  {word:"HADAS",q:[
+    ["4 m → 24€, 7 → ?",["38","46","42"],["C","C","A"]],
+    ["6 L/100km en 350km",["18","21","24"],["J","A","T"]],
+    ["18 → 450g, 12 → ?",["350","250","300"],["Y","T","D"]],
+    ["8 obreros 15 días, 12 → ?",["10","8","12"],["H","S","K"]],
+    ["Piscina 12h, 3 mangueras",["6","4","3"],["M","S","G"]]
+  ]},
+  {word:"PODER",q:[
+    ["(-4)+3×(-5)",["-19","-11","11"],["R","Z","F"]],
+    ["2,4 × 10",["2,4","0,24","24"],["G","R","E"]],
+    ["0,75 equivale a",["3/4","2/5","1/3"],["D","U","V"]],
+    ["5 cuestan 12€, 8 → ?",["20","18","19,2"],["N","J","P"]],
+    ["6 pers 300g, 10 → ?",["450","500","600"],["X","O","C"]]
+  ]}
 ];
 
-let sala=0,preg=0,letras=[],intentos=3,tiempo=720,reloj;
+/* ===== CAPTURA DE ELEMENTOS (FIX CHROME) ===== */
+const badgeStageEl = document.getElementById("badgeStage");
+const badgeTimerEl = document.getElementById("badgeTimer");
+const progressBarEl = document.getElementById("progressBar");
+const screenEl = document.getElementById("screen");
+
+/* ===== ESTADO ===== */
+let sala = 0;
+let preg = 0;
+let letras = [];
+let intentos = 3;
+let tiempo = 12 * 60;
+let reloj = null;
 
 /* ===== TIMER ===== */
 function startTimer(){
-  clearInterval(reloj);
-  tiempo=720;
-  reloj=setInterval(()=>{
+  stopTimer();
+  tiempo = 12 * 60;
+  renderHeader();
+  reloj = setInterval(() => {
     tiempo--;
-    badgeTimer.textContent=`⏳ ${String(tiempo/60|0).padStart(2,"0")}:${String(tiempo%60).padStart(2,"0")}`;
-    if(tiempo<=0) reiniciarSala();
-  },1000);
+    if (tiempo <= 0) {
+      tiempo = 0;
+      renderHeader();
+      reiniciarSala();
+      return;
+    }
+    renderHeader();
+  }, 1000);
+}
+
+function stopTimer(){
+  if (reloj) { clearInterval(reloj); reloj = null; }
+}
+
+function fmt(sec){
+  const m = Math.floor(sec/60);
+  const s = sec % 60;
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+function renderHeader(){
+  const totalSalas = GAME.length;
+  badgeStageEl.textContent =
+    `🗝️ Sala ${sala+1}/${totalSalas} · ${preg < 5 ? `Pregunta ${preg+1}/5` : "Palabra"}`;
+  badgeTimerEl.textContent = `⏳ ${fmt(tiempo)}`;
+
+  const pct = Math.min(100, Math.round((Math.min(preg,5) / 5) * 100));
+  progressBarEl.style.width = pct + "%";
 }
 
 /* ===== RENDER ===== */
 function renderPregunta(){
-  badgeStage.textContent=`🗝️ Sala ${sala+1}/4 · Pregunta ${preg+1}/5`;
-  progressBar.style.width=(preg/5*100)+"%";
-  const q=GAME[sala].q[preg];
-  screen.innerHTML=`
+  renderHeader();
+  const q = GAME[sala].q[preg];
+
+  screenEl.innerHTML = `
     <div class="question">${q[0]}</div>
     <div class="answers">
-      ${q[1].map((t,i)=>`<button onclick="elegir('${q[2][i]}')">${t}</button>`).join("")}
+      ${q[1].map((t,i)=>`<button type="button" data-letter="${q[2][i]}">${t}</button>`).join("")}
     </div>
-    <h3>Letras obtenidas</h3>
-    <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
+
+    <h2 style="margin-top:14px;">Letras obtenidas</h2>
+    <div class="chips">
+      ${letras.length ? letras.map(l=>`<span class="chip">${l}</span>`).join("") : `<span style="color:var(--muted)">Aún no tienes letras.</span>`}
+    </div>
   `;
+
+  // listeners (evita onclick inline y funciona siempre)
+  screenEl.querySelectorAll("button[data-letter]").forEach(btn => {
+    btn.addEventListener("click", () => elegir(btn.getAttribute("data-letter")));
+  });
 }
 
 function elegir(l){
+  // Siempre se obtiene una letra (sin decir si es correcta/falsa)
   letras.push(l);
   preg++;
-  preg<5 ? renderPregunta() : renderPalabra();
+  if (preg < 5) renderPregunta();
+  else renderPalabra();
 }
 
 function renderPalabra(msg=""){
-  badgeStage.textContent=`🗝️ Sala ${sala+1}/4 · Palabra`;
-  progressBar.style.width="100%";
-  screen.innerHTML=`
-    <h2>🔒 Cerradura</h2>
-    <p>Intentos restantes: <b>${intentos}</b></p>
-    <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
-    <input id="w" placeholder="Escribe la palabra final">
-    <button class="primary" onclick="comprobar()">COMPROBAR</button>
-    <p>${msg}</p>
+  renderHeader();
+  screenEl.innerHTML = `
+    <h1 style="margin:0 0 6px 0;">🔒 Cerradura</h1>
+    <p>Escribe la palabra final. Intentos restantes: <b>${intentos}</b></p>
+
+    <div class="chips">
+      ${letras.map(l=>`<span class="chip">${l}</span>`).join("")}
+    </div>
+
+    <input id="w" placeholder="Escribe la palabra final" autocomplete="off">
+    <button class="primary" id="btnCheck" type="button">COMPROBAR</button>
+    ${msg ? `<p style="margin-top:10px;">${msg}</p>` : ""}
+
+    <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+      <button type="button" id="btnRestart">Reiniciar sala</button>
+    </div>
   `;
+
+  const input = document.getElementById("w");
+  input.focus();
+
+  document.getElementById("btnCheck").addEventListener("click", comprobar);
+  document.getElementById("btnRestart").addEventListener("click", reiniciarSala);
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") comprobar();
+  });
 }
 
 function comprobar(){
-  const v=document.getElementById("w").value.toUpperCase().trim();
-  if(v===GAME[sala].word){
+  const input = document.getElementById("w");
+  const v = (input?.value || "").toUpperCase().trim();
+
+  if (v === GAME[sala].word) {
     sala++;
-    sala>=GAME.length
-      ? screen.innerHTML="<h1>🏆 ¡ESCAPE COMPLETADO!</h1>"
-      : reiniciarSala();
-  }else{
+    if (sala >= GAME.length) {
+      stopTimer();
+      progressBarEl.style.width = "100%";
+      badgeStageEl.textContent = `🏆 Final`;
+      screenEl.innerHTML = `
+        <h1>🏆 ¡ESCAPE COMPLETADO!</h1>
+        <p>¡Enhorabuena! Has superado todas las salas.</p>
+        <button class="primary" id="btnAgain" type="button">Jugar de nuevo</button>
+      `;
+      document.getElementById("btnAgain").addEventListener("click", () => {
+        sala = 0; preg = 0; letras = []; intentos = 3;
+        startTimer();
+        renderPregunta();
+      });
+    } else {
+      reiniciarSala(); // pasa a la siguiente sala (reinicia estado de sala)
+    }
+  } else {
     intentos--;
-    intentos>0 ? renderPalabra("❌") : reiniciarSala();
+    if (intentos <= 0) {
+      reiniciarSala(); // falló 3 veces -> repite la sala
+    } else {
+      renderPalabra("❌"); // sin pistas extra
+    }
   }
 }
 
 function reiniciarSala(){
-  preg=0;letras=[];intentos=3;
-  startTimer();renderPregunta();
+  preg = 0;
+  letras = [];
+  intentos = 3;
+  startTimer();
+  renderPregunta();
 }
 
 /* ===== INICIO ===== */
