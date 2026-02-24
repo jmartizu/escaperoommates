@@ -71,7 +71,52 @@ const timer=document.getElementById("timer");
 const bar=document.getElementById("bar");
 const screen=document.getElementById("screen");
 
-function start(){
+function renderIntro(){
+  const screen = document.getElementById("screen");
+  const stage = document.getElementById("stage");
+  const bar = document.getElementById("bar");
+
+  stage.textContent = "🪄 Misión inicial";
+  bar.style.width = "0%";
+
+  screen.innerHTML = `
+    <h1>🪄 El Hechizo del Conocimiento</h1>
+
+    <p>
+      El conocimiento matemático del instituto ha sido sellado por un antiguo hechizo.
+      Solo quienes superen las pruebas lograrán romperlo.
+    </p>
+
+    <div style="margin:14px 0; padding:14px; background:rgba(0,0,0,.25); border-radius:14px;">
+      <p>🔐 <b>4 salas</b> esconden las palabras mágicas.</p>
+      <p>🧩 Cada sala tiene <b>5 desafíos</b>.</p>
+      <p>🔤 Cada respuesta te da una letra (no todas ayudan).</p>
+      <p>❌ Solo <b>3 intentos</b> para cada palabra.</p>
+      <p>⏳ El tiempo se reinicia si falláis.</p>
+    </div>
+
+    <p style="margin-top:10px;">
+      Pensad en equipo. No hay vuelta atrás una vez empiece el contador.
+    </p>
+
+    <button class="primary" id="btnStartMission" style="margin-top:14px;">
+      🚀 COMENZAR MISIÓN
+    </button>
+  `;
+
+  document.getElementById("btnStartMission").onclick = () => {
+    // Reiniciamos estado por seguridad
+    sala = 0;
+    preg = 0;
+    letras = [];
+    intentos = 3;
+
+    start();        // ⏱️ ARRANCA EL TIEMPO
+    render();       // 🧩 PRIMERA PREGUNTA
+  };
+}
+  
+  function start(){
   clearInterval(clk);
   t=720;
   clk=setInterval(()=>{
