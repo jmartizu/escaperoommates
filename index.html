@@ -204,9 +204,39 @@ function comprobar(){
 
 function siguienteSala(){
   sala++;
-  sala>=GAME.length
-    ? screen.innerHTML="<h1>🏆 ¡ESCAPE COMPLETADO!</h1>"
-    : reiniciarSala();
+
+  if(sala >= GAME.length){
+    // FINAL DEL ESCAPE ROOM
+    clearInterval(clk);
+    bar.style.width = "100%";
+    stage.textContent = "🏆 Misión completada";
+
+    screen.innerHTML = `
+      <h1 style="text-align:center;">🏆 ¡ESCAPE COMPLETADO!</h1>
+      <p style="text-align:center;">
+        El hechizo ha sido roto. La puerta final se abre…
+      </p>
+
+      <div style="margin-top:14px; border-radius:16px; overflow:hidden;">
+        <video
+          src="puerta.mp4"
+          autoplay
+          controls
+          style="width:100%; max-height:420px; background:black;"
+        ></video>
+      </div>
+
+      <p style="text-align:center; margin-top:14px;">
+        🔓 El conocimiento ha sido liberado.
+      </p>
+
+      <div style="display:flex; justify-content:center; margin-top:14px;">
+        <button class="primary" onclick="renderIntro()">Volver al inicio</button>
+      </div>
+    `;
+  }else{
+    reiniciarSala();
+  }
 }
 
 function reiniciarSala(){
