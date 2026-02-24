@@ -151,7 +151,7 @@ function startGame(){
 
 function renderPregunta(){
   panel.className="panel";
-  stage.textContent=`🗝️ Sala ${sala+1}/4 · Pregunta ${p+1}/5`;
+  stage.textContent=`🗝️ Sala ${sala+1}/5 · Pregunta ${p+1}/5`;
   bar.style.width=(p/5*100)+"%";
 
   const q=GAME[sala].q[p];
@@ -171,7 +171,7 @@ function elegir(l){
 }
 
 function renderPalabra(msg=""){
-  stage.textContent=`🗝️ Sala ${sala+1}/4 · Palabra`;
+  stage.textContent=`🗝️ Sala ${sala+1}/5 · Palabra`;
   bar.style.width="100%";
 
   screen.innerHTML=`
