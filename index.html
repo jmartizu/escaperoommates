@@ -7,37 +7,32 @@
 <title>Escape Room Matemático</title>
 
 <style>
-:root{--bg:#0b1020;--text:#fff}
+:root{--bg:#0b1020;--text:rgba(255,255,255,.92);--muted:rgba(255,255,255,.7)}
 *{box-sizing:border-box}
 body{
   margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;
-  background:#0b1020;color:#fff;
-  min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px
+  background:radial-gradient(1200px 700px at 30% 10%, rgba(116,192,252,.2), transparent 60%),var(--bg);
+  color:var(--text);
+  min-height:100vh;display:flex;justify-content:center;align-items:center;padding:18px
 }
-.app{width:100%;max-width:980px;background:#111827;border-radius:20px;overflow:hidden}
-header{display:flex;justify-content:space-between;padding:14px;background:#020617}
-.badge{padding:8px 12px;border-radius:999px;background:#1f2933;font-weight:700}
+.app{width:min(980px,100%);background:rgba(255,255,255,.05);border-radius:20px;overflow:hidden}
+header{display:flex;justify-content:space-between;padding:14px;background:rgba(0,0,0,.2)}
+.badge{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.1);font-weight:700}
 main{padding:18px}
-.panel{background:#020617;border-radius:16px;padding:18px}
-.panel.success{background:#064e3b}
-.panel.fail{background:#7f1d1d}
-.question{font-size:22px;font-weight:800}
+.panel{background:rgba(255,255,255,.06);border-radius:16px;padding:18px;transition:background .4s}
+.panel.success{background:rgba(0,180,0,.25)}
+.panel.fail{background:rgba(200,0,0,.25)}
+.question{font-size:22px;font-weight:800;margin-top:8px}
 .answers{display:grid;gap:10px;margin-top:14px}
-button{
-  background:#1f2933;color:#fff;border:none;
-  padding:14px;border-radius:14px;
-  font-size:16px;cursor:pointer
-}
-button.primary{background:#38bdf8;font-weight:800;color:#000}
+button{background:rgba(255,255,255,.08);color:white;border:none;padding:14px;border-radius:14px;font-size:16px;cursor:pointer}
+button.primary{background:#74c0fc;font-weight:800}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.chip{padding:8px 12px;border-radius:999px;background:#334155;font-weight:900}
-input{
-  width:100%;padding:14px;border-radius:14px;
-  border:none;margin-top:10px;font-size:16px
-}
-.progress{height:8px;background:#1f2933;border-radius:999px;overflow:hidden;margin-bottom:12px}
-.progress div{height:100%;background:#38bdf8;width:0%}
-video{width:100%;border-radius:14px;margin-top:14px}
+.chip{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.15);font-weight:900}
+input{width:100%;padding:14px;border-radius:14px;border:none;margin-top:10px;font-size:16px}
+.progress{height:8px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.progress div{height:100%;background:#74c0fc;width:0%}
+.small{font-size:13px;color:var(--muted);margin-top:10px}
+video{width:100%;border-radius:14px}
 </style>
 </head>
 
@@ -53,120 +48,170 @@ video{width:100%;border-radius:14px;margin-top:14px}
     <div class="progress"><div id="bar"></div></div>
     <div id="screen"></div>
   </div>
+  <div class="small">Pulsa F11 para pantalla completa</div>
 </main>
 </div>
 
 <script>
+/* ================= DATOS ================= */
 const GAME=[
 {w:"MAGIA",q:[
-["(-3)+5·2-4",["7","-1","3"],["X","K","I"],2],
-["8-(-2)·3+1",["11","15","3"],["B","A","G"],1],
-["(-5)·2+8÷(-4)",["-12","-14","-8"],["G","O","F"],0],
-["12÷(-3)+(-2)·5",["-18","-6","-14"],["U","P","A"],2],
-["(-6)+4·(-2)-3",["-17","-13","-11"],["M","Q","S"],0]
+["Calcula: (-3)+5*2-4",["7","-1","3"],["X","K","I"],2],
+["Resuelve: 8-(-2)*3+1",["11","15","3"],["B","A","G"],1],
+["Calcula: (-5)*2+8/(-4)",["-12","-14","-8"],["G","O","F"],0],
+["Resuelve: 12/(-3)+(-2)*5",["-18","-6","-14"],["U","P","A"],2],
+["Calcula: (-6)+4*(-2)-3",["-17","-13","-11"],["M","Q","S"],0]
 ]},
 {w:"BRUJA",q:[
-["35% de 200",["70","65","75"],["J","U","M"],0],
-["60% es 48",["80","88","72"],["U","M","B"],0],
-["18 de 72 (%)",["30%","20%","25%"],["Z","N","B"],2],
-["150€ +20%",["180€","190€","170€"],["A","Z","I"],0],
-["200€ −15%",["160€","170€","180€"],["P","R","K"],1]
+["¿Cuál es el 35% de 200?",["70","65","75"],["J","U","M"],0],
+["Si el 60% de un número es 48, ¿cuál es el número?",["80","88","72"],["U","M","B"],0],
+["¿Qué porcentaje representa 18 de 72?",["30%","20%","25%"],["Z","N","B"],2],
+["Un artículo cuesta 150 €. Si sube un 20 %, ¿nuevo precio?",["180€","190€","170€"],["A","Z","I"],0],
+["Una bici cuesta 200 €. Descuento 15 %. ¿Precio final?",["160€","170€","180€"],["P","R","K"],1]
 ]},
 {w:"HADAS",q:[
-["4 m → 24€, 7 → ?",["38","46","42"],["C","C","A"],2],
-["6 L/100 km en 350 km",["18","21","24"],["J","A","T"],1],
-["18 → 450 g, 12 → ?",["350","250","300"],["Y","T","D"],2],
-["8 obreros 15 días, 12 → ?",["10","8","12"],["H","S","K"],0],
-["Piscina 12 h, 3 mangueras",["6","4","3"],["M","S","G"],1]
+["Si 4 m cuestan 24 €, ¿cuánto 7 m?",["38€","46€","42€"],["C","C","A"],2],
+["Un coche consume 6 L/100 km. En 350 km:",["18 L","21 L","24 L"],["J","A","T"],1],
+["18 pasteles usan 450 g. 12 pasteles:",["350 g","250 g","300 g"],["Y","T","D"],2],
+["8 obreros hacen un muro en 15 días. 12 obreros:",["10","8","12"],["H","S","K"],0],
+["1 manguera llena piscina en 12 h. 3 mangueras:",["6 h","4 h","3 h"],["M","S","G"],1]
+]},
+{w:"PODER",q:[
+["Calcula: (-4)+3*(-5)",["-19","-11","11"],["R","Z","F"],0],
+["Resuelve: 2,4*10",["2,4","0,24","24"],["G","R","E"],2],
+["Fracción equivalente a 0,75:",["3/4","2/5","1/3"],["D","U","V"],0],
+["5 cuadernos cuestan 12 €. 8 cuadernos:",["20€","18€","19,2€"],["N","J","P"],2],
+["Receta 6 pers = 300 g. Para 10 pers:",["450 g","500 g","600 g"],["X","O","C"],1]
 ]},
 {w:"RUNAS",q:[
 ["2/3 + 1/4",["11/12","3/7","6/12","8/12"],["R","U","N","A"],0],
 ["5/6 - 1/3",["1/2","4/3","2/3","1/6"],["U","R","A","S"],0],
-["3/4 · 2/5",["3/10","6/20","5/9","6/9"],["N","R","U","A"],0],
+["3/4 * 2/5",["3/10","6/20","5/9","6/9"],["N","R","U","A"],0],
 ["2/3 ÷ 4/9",["3/2","8/27","6/12","2/3"],["A","U","R","N"],0],
 ["1/2 + 3/8 - 1/4",["5/8","3/8","7/8","1/8"],["S","R","U","N"],0]
 ]}
 ];
 
+/* ================= ELEMENTOS ================= */
 const stage=document.getElementById("stage");
 const timer=document.getElementById("timer");
 const bar=document.getElementById("bar");
 const screen=document.getElementById("screen");
 const panel=document.getElementById("panel");
 
-let sala=0,p=0,letras=[],intentos=3,t=720,clk;
+/* ================= ESTADO ================= */
+let sala=0,p=0,letras=[],intentos=3,t=720,clk=null;
 
-function intro(){
-  stage.textContent="🪄 Misión";
+/* ================= INTRO ================= */
+function renderIntro(){
+  stage.textContent="🪄 Misión inicial";
   timer.textContent="⏳ 12:00";
+  bar.style.width="0%";
   screen.innerHTML=`
     <h1>🪄 El Hechizo del Conocimiento</h1>
-    <p>Supera las salas resolviendo retos matemáticos.</p>
-    <button class="primary" onclick="start()">🚀 COMENZAR</button>
+    <p>El conocimiento matemático ha sido sellado.</p>
+    <p>Superad las salas para romper el hechizo.</p>
+    <button class="primary" onclick="startGame()">🚀 COMENZAR MISIÓN</button>
   `;
 }
-function start(){
-  sala=0;p=0;letras=[];intentos=3;
-  startTimer();pregunta();
-}
+
+/* ================= TIMER ================= */
 function startTimer(){
-  clearInterval(clk);t=720;
+  clearInterval(clk);
+  t=720;
   clk=setInterval(()=>{
-    t--;timer.textContent=`⏳ ${String(t/60|0).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`;
-    if(t<=0) reiniciar();
+    t--;
+    timer.textContent=\`⏳ \${String(t/60|0).padStart(2,"0")}:\${String(t%60).padStart(2,"0")}\`;
+    if(t<=0) reiniciarSala();
   },1000);
 }
-function pregunta(){
+
+/* ================= JUEGO ================= */
+function startGame(){
+  sala=0;p=0;letras=[];intentos=3;
+  startTimer();renderPregunta();
+}
+
+function renderPregunta(){
   panel.className="panel";
-  stage.textContent=`🗝️ Sala ${sala+1}/${GAME.length} · Pregunta ${p+1}/5`;
+  stage.textContent=\`🗝️ Sala \${sala+1}/5 · Pregunta \${p+1}/5\`;
   bar.style.width=(p/5*100)+"%";
+
   const q=GAME[sala].q[p];
   screen.innerHTML=`
     <div class="question">${q[0]}</div>
     <div class="answers">
-      ${q[1].map((t,i)=>`<button onclick="responder(${i})">${t}</button>`).join("")}
+      ${q[1].map((t,i)=>`<button onclick="elegir(${i})">${t}</button>`).join("")}
     </div>
     <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
   `;
 }
-function responder(i){
+
+function elegir(i){
   const q=GAME[sala].q[p];
-  const ok=i===q[3];
-  letras.push(q[2][i]);
+  const correcta=i===q[3];
+  const letra=q[2][i];
+  letras.push(letra);
+
   screen.innerHTML=`
-    <h2>${ok?"✅ Correcta":"❌ Incorrecta"}</h2>
-    <button class="primary" onclick="seguir()">Continuar</button>
+    <h1>${correcta?"✅ ¡Respuesta correcta!":"❌ Respuesta incorrecta"}</h1>
+    <p>Letra obtenida: <b>${letra}</b></p>
+    <button class="primary" onclick="continuar()">CONTINUAR</button>
   `;
 }
-function seguir(){p<4?(p++,pregunta()):palabra();}
-function palabra(msg=""){
-  screen.innerHTML=`
-    <p>Intentos: ${intentos}</p>
-    <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
-    <input id="w" placeholder="Palabra final">
-    <button class="primary" onclick="comprobar()">Comprobar</button>
-    <p>${msg}</p>`;
+
+function continuar(){
+  p++;
+  p<5 ? renderPregunta() : renderPalabra();
 }
+
+function renderPalabra(msg=""){
+  stage.textContent=\`🗝️ Sala \${sala+1}/5 · Palabra\`;
+  bar.style.width="100%";
+  screen.innerHTML=`
+    <p>Intentos restantes: <b>${intentos}</b></p>
+    <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
+    <input id="w" placeholder="Escribe la palabra final">
+    <button class="primary" onclick="comprobar()">COMPROBAR</button>
+    <p>${msg}</p>
+  `;
+}
+
 function comprobar(){
   const v=document.getElementById("w").value.toUpperCase().trim();
   if(v===GAME[sala].w){
-    panel.className="panel success";
-    sala++;sala>=GAME.length?final():reiniciar();
+    panel.classList.add("success");
+    screen.innerHTML=`
+      <h1>🎉 ¡¡ ENHORABUENA !!</h1>
+      <button class="primary" onclick="siguienteSala()">CONTINUAR</button>
+    `;
   }else{
-    panel.className="panel fail";
-    intentos--;intentos>0?palabra("❌ Incorrecta"):reiniciar();
+    panel.classList.add("fail");
+    intentos--;
+    setTimeout(()=>panel.className="panel",400);
+    intentos>0?renderPalabra("❌ Incorrecta"):reiniciarSala();
   }
 }
-function reiniciar(){p=0;letras=[];intentos=3;pregunta();}
-function final(){
-  clearInterval(clk);
-  screen.innerHTML=`
-    <h1>🏆 ESCAPE COMPLETADO</h1>
-    <video src="puerta.mp4" autoplay muted controls playsinline></video>
-    <button class="primary" onclick="intro()">Volver</button>`;
+
+function siguienteSala(){
+  sala++;
+  if(sala>=GAME.length){
+    clearInterval(clk);
+    stage.textContent="🏆 Final";
+    screen.innerHTML=`
+      <h1>🏆 ESCAPE COMPLETADO</h1>
+      <video src="puerta.mp4" autoplay controls></video>
+      <button class="primary" onclick="renderIntro()">Volver al inicio</button>
+    `;
+  }else reiniciarSala();
 }
 
-intro();
+function reiniciarSala(){
+  p=0;letras=[];intentos=3;
+  startTimer();renderPregunta();
+}
+
+renderIntro();
 </script>
 </body>
 </html>
