@@ -161,10 +161,10 @@ const ALL_WORDS = ["MAGIA", "BRUJA", "HADAS", "HECHO", "PODER"];
 
 const storyByBlock = [
   { title: "La Biblioteca Prohibida", text: "El guardián ha sellado la salida. Para abrir la primera puerta, reúne 5 letras escondidas en libros encantados." },
-  { title: "El Taller de la Bruja Relojera", text: "La bruja detuvo el tiempo. Responde con cuidado: los fallos te entregan letras trampa que confunden la clave." },
-  { title: "El Bosque de las Hadas", text: "Las hadas ocultan la palabra entre proporciones. Reúne letras auténticas… y descarta los señuelos." },
-  { title: "El Salón del Hechizo Incompleto", text: "La sala vibra. Cada error deja una runa falsa. Descifra la palabra antes de que termine la cuenta atrás." },
-  { title: "La Cámara del Poder", text: "Última puerta. Si descifras la palabra final, el portal se abrirá y el hechizo quedará completo." },
+  { title: "El Taller del Reloj", text: "La bruja detuvo el tiempo. Responde con cuidado: los fallos te entregan letras trampa que confunden la clave." },
+  { title: "El Bosque", text: "Las hadas ocultan la palabra entre proporciones. Reúne letras auténticas… y descarta los señuelos." },
+  { title: "El Salón del Mago", text: "La sala vibra. Cada error deja una runa falsa. Descifra la palabra antes de que termine la cuenta atrás." },
+  { title: "La Cámara", text: "Última puerta. Si descifras la palabra final, el portal se abrirá y el hechizo quedará completo." },
 ];
 
 let blockIndex = 0;
@@ -442,6 +442,37 @@ function restartBlock() {
   renderQuestion();
 }
 
+function siguienteSala(){
+  sala++;
+
+  if(sala >= GAME.length){
+    clearInterval(clk);
+    stage.textContent = "🏆 Final del Escape";
+
+    screen.innerHTML = `
+      <h1 style="text-align:center;">🏆 ESCAPE COMPLETADO</h1>
+      <p style="text-align:center;">
+        El candado se rompe… la puerta se abre…
+      </p>
+
+      <video
+        src="puerta.mp4"
+        autoplay
+        muted
+        controls
+        playsinline
+        style="width:100%; max-width:700px; display:block; margin:16px auto;"
+      ></video>
+
+      <div style="text-align:center; margin-top:16px;">
+        <button class="primary" onclick="renderIntro()">Volver al inicio</button>
+      </div>
+    `;
+  }else{
+    reiniciarSala();
+  }
+} 
+  
 // Boot
 renderStart();
 </script>
