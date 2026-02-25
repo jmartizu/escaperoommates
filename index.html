@@ -32,6 +32,7 @@ input{width:100%;padding:14px;border-radius:14px;border:none;margin-top:10px;fon
 .progress{height:8px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-bottom:12px}
 .progress div{height:100%;background:#74c0fc;width:0%}
 .small{font-size:13px;color:var(--muted);margin-top:10px}
+video{width:100%;border-radius:14px}
 </style>
 </head>
 
@@ -47,135 +48,127 @@ input{width:100%;padding:14px;border-radius:14px;border:none;margin-top:10px;fon
     <div class="progress"><div id="bar"></div></div>
     <div id="screen"></div>
   </div>
-  <div class="small">Consejo: pulsa F11 para pantalla completa</div>
+  <div class="small">Pulsa F11 para pantalla completa</div>
 </main>
 </div>
 
 <script>
-/* ================== DATOS ================== */
+/* ================= DATOS ================= */
 const GAME=[
 {w:"MAGIA",q:[
-["Calcula: (-3) + 5 × 2 - 4",["7","-1","3"],["X","K","I"]],
-["Resuelve: 8 - (-2) × 3 + 1",["11","15","3"],["B","A","G"]],
-["Calcula: (-5) × 2 + 8 ÷ (-4)",["-12","-14","-8"],["G","O","F"]],
-["Resuelve: 12 ÷ (-3) + (-2) × 5",["-18","-6","-14"],["U","P","A"]],
-["Calcula: (-6) + 4 × (-2) - 3",["-17","-13","-11"],["M","Q","S"]]
+["Calcula: (-3)+5*2-4",["7","-1","3"],["X","K","I"],2],
+["Resuelve: 8-(-2)*3+1",["11","15","3"],["B","A","G"],1],
+["Calcula: (-5)*2+8/(-4)",["-12","-14","-8"],["G","O","F"],0],
+["Resuelve: 12/(-3)+(-2)*5",["-18","-6","-14"],["U","P","A"],2],
+["Calcula: (-6)+4*(-2)-3",["-17","-13","-11"],["M","Q","S"],0]
 ]},
 {w:"BRUJA",q:[
-["¿Cuál es el 35% de 200?",["70","65","75"],["J","U","M"]],
-["Si el 60% de un número es 48, ¿cuál es el número?",["80","88","72"],["U","M","B"]],
-["¿Qué porcentaje representa 18 de 72?",["30%","20%","25%"],["Z","N","B"]],
-["Un artículo cuesta 150 €. Si sube un 20 %, ¿cuál es el nuevo precio?",["180€","190€","170€"],["A","Z","I"]],
-["Una bicicleta cuesta 200 €. Si tiene un descuento del 15 %, ¿cuál es su precio final?",["160€","170€","180€"],["P","R","K"]]
+["¿Cuál es el 35% de 200?",["70","65","75"],["J","U","M"],0],
+["Si el 60% de un número es 48, ¿cuál es el número?",["80","88","72"],["U","M","B"],0],
+["¿Qué porcentaje representa 18 de 72?",["30%","20%","25%"],["Z","N","B"],2],
+["Un artículo cuesta 150 €. Si sube un 20 %, ¿nuevo precio?",["180€","190€","170€"],["A","Z","I"],0],
+["Una bici cuesta 200 €. Descuento 15 %. ¿Precio final?",["160€","170€","180€"],["P","R","K"],1]
 ]},
 {w:"HADAS",q:[
-["Si 4 metros de tela cuestan 24 €, ¿cuánto costarán 7 metros?",["38€","46€","42€"],["C","C","A"]],
-["Un coche consume 6 litros cada 100 km. ¿Cuántos litros consumirá en 350 km?",["18 L","21 L","24 L"],["J","A","T"]],
-["Para hacer 18 pasteles se necesitan 450 g de azúcar. ¿Cuántos gramos se necesitarán para hacer 12 pasteles?",["350 g","250 g","300 g"],["Y","T","D"]],
-["8 obreros construyen un muro en 15 días. ¿Cuántos días tardarán 12 obreros?",["10","8","12"],["H","S","K"]],
-["Una manguera llena una piscina en 12 horas. ¿Cuánto tardarán 3 mangueras?",["6 h","4 h","3 h"],["M","S","G"]]
+["Si 4 m cuestan 24 €, ¿cuánto 7 m?",["38€","46€","42€"],["C","C","A"],2],
+["Un coche consume 6 L/100 km. En 350 km:",["18 L","21 L","24 L"],["J","A","T"],1],
+["18 pasteles usan 450 g. 12 pasteles:",["350 g","250 g","300 g"],["Y","T","D"],2],
+["8 obreros hacen un muro en 15 días. 12 obreros:",["10","8","12"],["H","S","K"],0],
+["1 manguera llena piscina en 12 h. 3 mangueras:",["6 h","4 h","3 h"],["M","S","G"],1]
 ]},
 {w:"PODER",q:[
-["Calcula: (-4) + 3 × (-5)",["-19","-11","11"],["R","Z","F"]],
-["Resuelve: 2,4 × 10",["2,4","0,24","24"],["G","R","E"]],
-["¿Qué fracción es equivalente a 0,75?",["3/4","2/5","1/3"],["D","U","V"]],
-["Si 5 cuadernos cuestan 12 €, ¿cuánto costarán 8 cuadernos?",["20€","18€","19,2€"],["N","J","P"]],
-["Una receta para 6 personas usa 300 g de harina. ¿Cuántos gramos se necesitan para 10 personas?",["450 g","500 g","600 g"],["X","O","C"]]
+["Calcula: (-4)+3*(-5)",["-19","-11","11"],["R","Z","F"],0],
+["Resuelve: 2,4*10",["2,4","0,24","24"],["G","R","E"],2],
+["Fracción equivalente a 0,75:",["3/4","2/5","1/3"],["D","U","V"],0],
+["5 cuadernos cuestan 12 €. 8 cuadernos:",["20€","18€","19,2€"],["N","J","P"],2],
+["Receta 6 pers = 300 g. Para 10 pers:",["450 g","500 g","600 g"],["X","O","C"],1]
 ]},
 {w:"RUNAS",q:[
-["Calcula: 2/3 + 1/4",["11/12","3/7","6/12","8/12"],["R","U","N","A"]],
-["Resuelve: 5/6 - 1/3",["1/2","4/3","2/3","1/6"],["U","R","A","S"]],
-["Calcula: 3/4 × 2/5",["3/10","6/20","5/9","6/9"],["N","R","U","A"]],
-["Resuelve: 2/3 ÷ 4/9",["3/2","8/27","6/12","2/3"],["A","U","R","N"]],
-["Calcula: 1/2 + 3/8 - 1/4",["5/8","3/8","7/8","1/8"],["S","R","U","N"]]
+["2/3 + 1/4",["11/12","3/7","6/12","8/12"],["R","U","N","A"],0],
+["5/6 - 1/3",["1/2","4/3","2/3","1/6"],["U","R","A","S"],0],
+["3/4 * 2/5",["3/10","6/20","5/9","6/9"],["N","R","U","A"],0],
+["2/3 ÷ 4/9",["3/2","8/27","6/12","2/3"],["A","U","R","N"],0],
+["1/2 + 3/8 - 1/4",["5/8","3/8","7/8","1/8"],["S","R","U","N"],0]
 ]}
 ];
 
-/* ================== ELEMENTOS ================== */
+/* ================= ELEMENTOS ================= */
 const stage=document.getElementById("stage");
 const timer=document.getElementById("timer");
 const bar=document.getElementById("bar");
 const screen=document.getElementById("screen");
 const panel=document.getElementById("panel");
 
-/* ================== ESTADO ================== */
+/* ================= ESTADO ================= */
 let sala=0,p=0,letras=[],intentos=3,t=720,clk=null;
 
-/* ================== INTRO MOTIVADORA ================== */
+/* ================= INTRO ================= */
 function renderIntro(){
   stage.textContent="🪄 Misión inicial";
   timer.textContent="⏳ 12:00";
   bar.style.width="0%";
-
   screen.innerHTML=`
     <h1>🪄 El Hechizo del Conocimiento</h1>
-
-    <p>
-      El conocimiento matemático del instituto ha sido sellado por un antiguo hechizo.
-      Cinco salas protegen las palabras mágicas necesarias para romperlo.
-    </p>
-
-    <div style="margin:14px 0;padding:14px;background:rgba(0,0,0,.25);border-radius:14px">
-      <p>🔐 Cada sala contiene <b>5 desafíos matemáticos</b>.</p>
-      <p>🔤 Cada respuesta os dará una letra (no todas ayudan).</p>
-      <p>❌ Solo tenéis <b>3 intentos</b> para cada palabra.</p>
-      <p>⏳ Si el tiempo se agota, la sala se reinicia.</p>
-    </div>
-
-    <p>
-      Pensad en equipo, repartid roles y tomad decisiones con cuidado.
-      Una vez comience el contador, no habrá marcha atrás.
-    </p>
-
+    <p>El conocimiento matemático ha sido sellado.</p>
+    <p>Superad las salas para romper el hechizo.</p>
     <button class="primary" onclick="startGame()">🚀 COMENZAR MISIÓN</button>
   `;
 }
 
-/* ================== TIMER ================== */
+/* ================= TIMER ================= */
 function startTimer(){
   clearInterval(clk);
   t=720;
   clk=setInterval(()=>{
     t--;
-    timer.textContent=`⏳ ${String(t/60|0).padStart(2,"0")}:${String(t%60).padStart(2,"0")}`;
+    timer.textContent=\`⏳ \${String(t/60|0).padStart(2,"0")}:\${String(t%60).padStart(2,"0")}\`;
     if(t<=0) reiniciarSala();
   },1000);
 }
 
-/* ================== JUEGO ================== */
+/* ================= JUEGO ================= */
 function startGame(){
   sala=0;p=0;letras=[];intentos=3;
-  startTimer();
-  renderPregunta();
+  startTimer();renderPregunta();
 }
 
 function renderPregunta(){
   panel.className="panel";
-  stage.textContent=`🗝️ Sala ${sala+1}/5 · Pregunta ${p+1}/5`;
+  stage.textContent=\`🗝️ Sala \${sala+1}/5 · Pregunta \${p+1}/5\`;
   bar.style.width=(p/5*100)+"%";
 
   const q=GAME[sala].q[p];
   screen.innerHTML=`
     <div class="question">${q[0]}</div>
     <div class="answers">
-      ${q[1].map((t,i)=>`<button onclick="elegir('${q[2][i]}')">${t}</button>`).join("")}
+      ${q[1].map((t,i)=>`<button onclick="elegir(${i})">${t}</button>`).join("")}
     </div>
     <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
   `;
 }
 
-function elegir(l){
-  letras.push(l);
+function elegir(i){
+  const q=GAME[sala].q[p];
+  const correcta=i===q[3];
+  const letra=q[2][i];
+  letras.push(letra);
+
+  screen.innerHTML=`
+    <h1>${correcta?"✅ ¡Respuesta correcta!":"❌ Respuesta incorrecta"}</h1>
+    <p>Letra obtenida: <b>${letra}</b></p>
+    <button class="primary" onclick="continuar()">CONTINUAR</button>
+  `;
+}
+
+function continuar(){
   p++;
   p<5 ? renderPregunta() : renderPalabra();
 }
 
 function renderPalabra(msg=""){
-  stage.textContent=`🗝️ Sala ${sala+1}/5 · Palabra`;
+  stage.textContent=\`🗝️ Sala \${sala+1}/5 · Palabra\`;
   bar.style.width="100%";
-
   screen.innerHTML=`
-    <h2>🔒 Cerradura</h2>
     <p>Intentos restantes: <b>${intentos}</b></p>
     <div class="chips">${letras.map(l=>`<span class="chip">${l}</span>`).join("")}</div>
     <input id="w" placeholder="Escribe la palabra final">
@@ -186,66 +179,38 @@ function renderPalabra(msg=""){
 
 function comprobar(){
   const v=document.getElementById("w").value.toUpperCase().trim();
-
   if(v===GAME[sala].w){
     panel.classList.add("success");
     screen.innerHTML=`
       <h1>🎉 ¡¡ ENHORABUENA !!</h1>
-      <p>La palabra es correcta. La puerta se abre…</p>
       <button class="primary" onclick="siguienteSala()">CONTINUAR</button>
     `;
   }else{
     panel.classList.add("fail");
     intentos--;
     setTimeout(()=>panel.className="panel",400);
-    intentos>0 ? renderPalabra("❌ Palabra incorrecta") : reiniciarSala();
+    intentos>0?renderPalabra("❌ Incorrecta"):reiniciarSala();
   }
 }
 
 function siguienteSala(){
   sala++;
-
-  if(sala >= GAME.length){
-    // FINAL DEL ESCAPE ROOM
+  if(sala>=GAME.length){
     clearInterval(clk);
-    bar.style.width = "100%";
-    stage.textContent = "🏆 Misión completada";
-
-    screen.innerHTML = `
-      <h1 style="text-align:center;">🏆 ¡ESCAPE COMPLETADO!</h1>
-      <p style="text-align:center;">
-        El hechizo ha sido roto. La puerta final se abre…
-      </p>
-
-      <div style="margin-top:14px; border-radius:16px; overflow:hidden;">
-        <video
-          src="puerta.mp4.mp4"
-          autoplay
-          controls
-          style="width:100%; max-height:420px; background:black;"
-        ></video>
-      </div>
-
-      <p style="text-align:center; margin-top:14px;">
-        🔓 El conocimiento ha sido liberado.
-      </p>
-
-      <div style="display:flex; justify-content:center; margin-top:14px;">
-        <button class="primary" onclick="renderIntro()">Volver al inicio</button>
-      </div>
+    stage.textContent="🏆 Final";
+    screen.innerHTML=`
+      <h1>🏆 ESCAPE COMPLETADO</h1>
+      <video src="puerta.mp4" autoplay controls></video>
+      <button class="primary" onclick="renderIntro()">Volver al inicio</button>
     `;
-  }else{
-    reiniciarSala();
-  }
+  }else reiniciarSala();
 }
 
 function reiniciarSala(){
   p=0;letras=[];intentos=3;
-  startTimer();
-  renderPregunta();
+  startTimer();renderPregunta();
 }
 
-/* ================== INICIO ================== */
 renderIntro();
 </script>
 </body>
