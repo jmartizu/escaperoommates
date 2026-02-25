@@ -104,14 +104,32 @@ let sala=0,p=0,letras=[],intentos=3,t=720,clk=null;
 
 /* ================= INTRO ================= */
 function renderIntro(){
-  stage.textContent="🪄 Misión inicial";
+  stage.textContent="🪄 Introducción";
   timer.textContent="⏳ 12:00";
   bar.style.width="0%";
+  panel.className="panel";
+
   screen.innerHTML=`
-    <h1>🪄 El Hechizo del Conocimiento</h1>
-    <p>El conocimiento matemático ha sido sellado.</p>
-    <p>Superad las salas para romper el hechizo.</p>
-    <button class="primary" onclick="startGame()">🚀 COMENZAR MISIÓN</button>
+    <h1 style="font-size:28px;">🪄 El Hechizo del Conocimiento</h1>
+
+    <p>
+      Un antiguo hechizo ha sellado el conocimiento matemático.
+      Solo quienes superen las pruebas lograrán abrir la puerta final.
+    </p>
+
+    <p>
+      En cada sala deberéis resolver retos matemáticos para conseguir letras.
+      Algunas letras ayudarán… otras intentarán confundir.
+    </p>
+
+    <p>
+      🔐 Al final de cada sala deberéis descubrir la palabra mágica.<br>
+      ⏳ El tiempo es limitado. Pensad en equipo.
+    </p>
+
+    <button class="primary" style="margin-top:16px;" onclick="startGame()">
+      🚀 COMENZAR EL ESCAPE ROOM
+    </button>
   `;
 }
 
