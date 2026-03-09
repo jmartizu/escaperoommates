@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -6,14 +6,12 @@
   <title>GeoGebra por pasos</title>
   <style>
     :root {
-      --bg: #f6f8fb;
       --card: #ffffff;
       --text: #1f2937;
       --muted: #6b7280;
       --line: #dbe3ee;
       --accent: #2563eb;
       --accent-soft: #dbeafe;
-      --ok: #0f766e;
       --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
       --radius: 22px;
     }
@@ -55,7 +53,7 @@
       margin: 0;
       color: var(--muted);
       font-size: 1rem;
-      max-width: 850px;
+      max-width: 900px;
     }
 
     .layout {
@@ -180,13 +178,8 @@
       color: #1d4ed8;
     }
 
-    .main { padding: 20px; }
-
-    .top-cards {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 18px;
-      margin-bottom: 18px;
+    .main {
+      padding: 20px;
     }
 
     .card {
@@ -194,11 +187,7 @@
       border: 1px solid var(--line);
       border-radius: 20px;
       padding: 18px;
-    }
-
-    .card h2, .card h3 {
-      margin-top: 0;
-      margin-bottom: 10px;
+      margin-bottom: 18px;
     }
 
     .step-title {
@@ -292,30 +281,8 @@
       font-size: 0.94rem;
     }
 
-    .tests {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      font-size: 0.92rem;
-      color: var(--muted);
-    }
-
-    .tests.ok {
-      background: #effdf8;
-      border-color: #c7f0e1;
-      color: #115e59;
-    }
-
-    .tests.fail {
-      background: #fef2f2;
-      border-color: #fecaca;
-      color: #991b1b;
-    }
-
     @media (max-width: 980px) {
-      .layout, .top-cards { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; }
       .sidebar { position: static; }
     }
   </style>
@@ -325,25 +292,31 @@
     <section class="hero">
       <h1>GeoGebra por pasos: construcción geométrica guiada</h1>
       <p>
-        Aplicación para que el alumnado siga 20 pasos y aprenda a manejar puntos, rectas, semirrectas, paralelas y perpendiculares en GeoGebra. En cada paso aparece una consigna y una imagen guía; el dibujo completo solo se revela al final.
+        Aplicación para que el alumnado siga 20 pasos y aprenda a manejar puntos, rectas,
+        semirrectas, paralelas y perpendiculares en GeoGebra. En cada paso aparece una consigna
+        y una imagen guía; el dibujo completo solo se revela al final.
       </p>
     </section>
 
     <div class="layout">
       <aside class="panel sidebar">
         <div class="badge">📐 Secuencia guiada de 20 pasos</div>
+
         <div class="progress-wrap">
           <div class="progress-label">
             <span>Progreso</span>
             <strong id="progressText">Paso 1 de 20</strong>
           </div>
-          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
         </div>
 
         <div class="controls">
           <button class="secondary" id="prevBtn">← Anterior</button>
           <button class="primary" id="nextBtn">Siguiente →</button>
         </div>
+
         <button class="ghost" id="restartBtn">Reiniciar actividad</button>
 
         <h3>Pasos</h3>
@@ -351,18 +324,14 @@
       </aside>
 
       <main class="panel main">
-        <div class="top-cards">
-          <section class="card">
-            <div class="step-subtitle" id="stepNumber">PASO 1</div>
-            <h2 class="step-title" id="stepTitle"></h2>
-            <div class="instruction" id="instruction"></div>
-            <div id="tools"></div>
-            <div id="goal"></div>
-            <div class="tip" id="tip"></div>
-          </section>
-
-          
-        </div>
+        <section class="card">
+          <div class="step-subtitle" id="stepNumber">PASO 1</div>
+          <h2 class="step-title" id="stepTitle"></h2>
+          <div class="instruction" id="instruction"></div>
+          <div id="tools"></div>
+          <div id="goal"></div>
+          <div class="tip" id="tip"></div>
+        </section>
 
         <section class="viewer">
           <div class="viewer-head">
@@ -377,7 +346,6 @@
             <svg id="scene" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" aria-label="Guía visual del paso actual"></svg>
           </div>
           <div class="footer-note" id="footerNote"></div>
-          <div class="tests" id="testResults">Comprobando la app…</div>
         </section>
       </main>
     </div>
@@ -393,7 +361,7 @@
       { title: 'Crea el punto D', instruction: 'Crea el punto <strong>D = (0,5)</strong> sobre la vertical que pasa por A.', tool: 'Punto', goal: 'Altura izquierda', tip: 'Puedes escribir D=(0,5).', note: 'Este punto marca la altura superior.' },
       { title: 'Paralela por D', instruction: 'Dibuja una <strong>Paralela</strong> a AB que pase por el punto D.', tool: 'Paralela', goal: 'Parte superior horizontal', tip: 'Debe ser horizontal como AB.', note: 'Será la línea superior.' },
       { title: 'Intersección C', instruction: 'Marca el punto <strong>C</strong> donde la paralela por D corta la vertical por B. Sus coordenadas serán <strong>C = (8,5)</strong>.', tool: 'Intersección', goal: 'Cerrar el rectángulo principal', tip: 'GeoGebra puede calcularlo automáticamente.', note: 'Ahora hay cuatro vértices.' },
-      { title: 'Semirrecta desde D', instruction: 'Crea una <strong>Semirrecta</strong> que salga de D hacia arriba a la derecha pasando por el punto aproximado <strong>(4,8)</strong>.', tool: 'Semirrecta', goal: 'Primera pendiente', tip: 'Puedes crear primero un punto auxiliar (4,8).', note: 'Empieza el tejado.' },
+      { title: 'Semirrecta desde D', instruction: 'Crea una <strong>Semirrecta</strong> que salga de D hacia arriba a la derecha pasando por el punto <strong>(4,8)</strong>.', tool: 'Semirrecta', goal: 'Primera pendiente', tip: 'Puedes crear primero un punto auxiliar (4,8).', note: 'Empieza el tejado.' },
       { title: 'Semirrecta desde C', instruction: 'Dibuja otra semirrecta desde C hacia arriba a la izquierda pasando por <strong>(4,8)</strong>.', tool: 'Semirrecta', goal: 'Segunda pendiente', tip: 'Las dos deben encontrarse arriba.', note: 'Se formará el vértice superior.' },
       { title: 'Vértice superior T', instruction: 'Marca el punto de intersección de las dos semirrectas: <strong>T = (4,8)</strong>.', tool: 'Intersección', goal: 'Punto más alto', tip: 'Ese punto será el centro del tejado.', note: 'T es el punto más alto.' },
       { title: 'Punto medio', instruction: 'Crea el punto <strong>M = (4,0)</strong> en el centro del segmento AB.', tool: 'Punto', goal: 'Eje central', tip: 'Está justo entre A y B.', note: 'Divide la base en dos.' },
@@ -423,7 +391,6 @@
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const restartBtn = document.getElementById('restartBtn');
-    const testResults = document.getElementById('testResults');
 
     const originX = 170;
     const originY = 380;
@@ -546,7 +513,7 @@
         shapes += `<polygon points="${toSvgX(0)},${toSvgY(5)} ${toSvgX(4)},${toSvgY(8)} ${toSvgX(8)},${toSvgY(5)}" fill="rgba(253,230,138,0.45)" stroke="#ca8a04" stroke-width="2" />`;
         shapes += `<rect x="${toSvgX(0)}" y="${toSvgY(5)}" width="${8 * scale}" height="${5 * scale}" fill="rgba(191,219,254,0.25)" stroke="#64748b" stroke-width="2" />`;
         shapes += `<rect x="${toSvgX(3)}" y="${toSvgY(3)}" width="${2 * scale}" height="${3 * scale}" fill="rgba(251,146,60,0.28)" stroke="#c2410c" stroke-width="2" />`;
-        shapes += `<rect x="${toSvgX(6)}" y="${toSvgY(4)}" width="${1 * scale}" height="${1 * scale}" fill="rgba(125,211,252,0.35)" stroke="#0284c7" stroke-width="2" />`;
+        shapes += `<rect x="${toSvgX(6)}" y="${toSvgY(4)}" width="${scale}" height="${scale}" fill="rgba(125,211,252,0.35)" stroke="#0284c7" stroke-width="2" />`;
       }
 
       scene.innerHTML = shapes;
@@ -570,33 +537,32 @@
     }
 
     function runTests() {
-      const results = [];
-
       function assert(condition, message) {
-        if (!condition) throw new Error(message);
-        results.push('✓ ' + message);
+        if (!condition) {
+          throw new Error(message);
+        }
       }
 
-      try {
-        assert(Array.isArray(steps), 'steps es un array');
-        assert(steps.length === 20, 'hay exactamente 20 pasos');
-        assert(toSvgX(0) === originX, 'toSvgX(0) coincide con el origen X');
-        assert(toSvgY(0) === originY, 'toSvgY(0) coincide con el origen Y');
-        assert(toSvgX(8) - toSvgX(0) === 8 * scale, 'la escala horizontal es correcta');
-        assert(toSvgY(0) - toSvgY(5) === 5 * scale, 'la escala vertical es correcta');
-        drawScene(0);
-        assert(scene.innerHTML.includes('A (0,0)'), 'el paso 1 dibuja el punto A con coordenadas');
-        drawScene(19);
-        assert(scene.innerHTML.includes('polygon'), 'el último paso dibuja el tejado final');
-        render();
-        assert(progressText.textContent.includes('Paso 1 de 20'), 'render actualiza el texto de progreso');
-        testResults.className = 'tests ok';
-        testResults.innerHTML = '<strong>Pruebas internas superadas.</strong><br>' + results.join('<br>');
-      } catch (error) {
-        console.error(error);
-        testResults.className = 'tests fail';
-        testResults.textContent = 'Error en pruebas internas: ' + error.message;
-      }
+      assert(Array.isArray(steps), 'steps debe ser un array');
+      assert(steps.length === 20, 'deben existir 20 pasos');
+      assert(typeof render === 'function', 'render debe existir');
+      assert(typeof drawScene === 'function', 'drawScene debe existir');
+      assert(toSvgX(0) === originX, 'toSvgX usa el origen correcto');
+      assert(toSvgY(0) === originY, 'toSvgY usa el origen correcto');
+      assert(toSvgX(8) - toSvgX(0) === 8 * scale, 'escala horizontal correcta');
+      assert(toSvgY(0) - toSvgY(5) === 5 * scale, 'escala vertical correcta');
+
+      drawScene(0);
+      assert(scene.innerHTML.includes('A (0,0)'), 'el paso 1 muestra A con coordenadas');
+
+      drawScene(19);
+      assert(scene.innerHTML.includes('polygon'), 'el paso final incluye el tejado');
+
+      render();
+      assert(progressText.textContent === 'Paso 1 de 20', 'render actualiza el progreso');
+      assert(stepList.children.length === 20, 'se renderizan los 20 botones de paso');
+
+      console.info('Tests OK');
     }
 
     prevBtn.addEventListener('click', () => {
