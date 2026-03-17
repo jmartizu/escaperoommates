@@ -6,10 +6,35 @@
 
 <style>
 body {
-  font-family: Arial;
-  background: linear-gradient(135deg,#1a1a1a,#000);
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
   color:white;
   text-align:center;
+}
+
+.pantalla { display:none; }
+.activa { display:block; }
+
+input, select {
+  padding:10px;
+  margin:5px;
+  border-radius:8px;
+  border:none;
+}
+
+button {
+  padding:10px 15px;
+  margin:5px;
+  border:none;
+  border-radius:10px;
+  background:#00c9ff;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover {
+  background:#92fe9d;
 }
 
 #pista {
@@ -17,8 +42,9 @@ body {
   height:260px;
   margin:20px auto;
   border:3px solid white;
+  border-radius:15px;
   position:relative;
-  background:#222;
+  background:#111;
 }
 
 .meta {
@@ -42,22 +68,27 @@ body {
 #c2 { top:60%; }
 #c3 { top:85%; }
 
-#jugadores {
-  margin:15px;
-  padding:10px;
-  border:2px solid #0f0;
-}
-
 .jugador {
-  color:lightgreen;
+  color:#00ff88;
+  font-weight:bold;
 }
-
 </style>
 </head>
 
 <body>
 
-<h1 id="titulo">🎮 Carrera</h1>
+<!-- MENU -->
+<div id="menu" class="activa">
+  <h1>🎮 Selecciona juego</h1>
+  <button onclick="iniciarModo('camellos')">🐪 Camellos</button>
+  <button onclick="iniciarModo('atletismo')">🏃 Atletismo</button>
+  <button onclick="iniciarModo('caballos')">🐎 Caballos</button>
+</div>
+
+<!-- JUEGO -->
+<div id="juego" class="pantalla">
+
+<h1 id="titulo"></h1>
 
 <input id="nombre" placeholder="Nombre">
 <select id="grupo">
@@ -69,7 +100,7 @@ body {
 
 <br>
 
-<button onclick="crearSala()">Crear sala</button>
+<button id="btnCrear" onclick="crearSala()">Crear sala</button>
 <div id="codigoSala"></div>
 
 <hr>
@@ -96,98 +127,147 @@ body {
 
 <div id="pista">
 <div class="meta"></div>
-<div id="c0" class="personaje">🐫</div>
-<div id="c1" class="personaje">🐫</div>
-<div id="c2" class="personaje">🐫</div>
-<div id="c3" class="personaje">🐫</div>
+<div id="c0" class="personaje"></div>
+<div id="c1" class="personaje"></div>
+<div id="c2" class="personaje"></div>
+<div id="c3" class="personaje"></div>
 </div>
 
-<h2>🏆 Ranking</h2>
+<h2>🏆 Ranking global</h2>
 <div id="ranking"></div>
 
-<button onclick="resetRanking()">Reset</button>
+<button onclick="resetRanking()">🗑️ Reset ranking</button>
+
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyAgA1B1liq0K6pHn1HqpQ8hXZbxVgqrEt4",
-authDomain: "camellos-dcf0d.firebaseapp.com",
-databaseURL: "https://camellos-dcf0d-default-rtdb.europe-west1.firebasedatabase.app",
-projectId: "camellos-dcf0d"
+  apiKey: "AIzaSyAgA1B1liq0K6pHn1HqpQ8hXZbxVgqrEt4",
+  authDomain: "camellos-dcf0d.firebaseapp.com",
+  databaseURL: "https://camellos-dcf0d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "camellos-dcf0d"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+let modo="camellos";
 let sala=null, grupo=null;
+let META=20;
+let tiempo=40, intervalo, respondido=false;
+let preguntaActual=null;
 
-// crear sala
+// modo
+function iniciarModo(m){
+  modo=m;
+  document.getElementById("menu").style.display="none";
+  document.getElementById("juego").style.display="block";
+
+  let icono = m==="camellos"?"🐫➡️":m==="atletismo"?"🏃‍♂️➡️":"🐎➡️";
+  document.getElementById("titulo").innerText = "Carrera de " + m;
+
+  for(let i=0;i<4;i++){
+    document.getElementById("c"+i).innerText=icono;
+  }
+}
+
+// preguntas 0–360
+function nuevaPregunta(){
+  let g=Math.floor(Math.random()*361);
+  let m=Math.floor(Math.random()*60);
+
+  if(Math.random()>0.5){
+    return {texto:`${g}° ${m}' → minutos`,respuesta:g*60+m,tipo:"min"};
+  } else {
+    return {texto:`${g}° ${m}' → grados`,respuesta:g+(m/60),tipo:"deg"};
+  }
+}
+
+// crear
 function crearSala(){
-sala=Math.random().toString(36).substring(2,6).toUpperCase();
-grupo=document.getElementById("grupo").value;
+  if(sala!==null)return;
 
-document.getElementById("codigoSala").innerText=sala;
+  sala=Math.random().toString(36).substring(2,6).toUpperCase();
+  grupo=document.getElementById("grupo").value;
 
-db.ref("salas/"+sala).set({
-jugadores:{},
-posiciones:{0:0,1:0,2:0,3:0},
-empezado:false
-});
+  document.getElementById("codigoSala").innerText="Código: "+sala;
 
-escuchar();
+  db.ref("salas/"+sala).set({
+    jugadores:{},
+    posiciones:{0:0,1:0,2:0,3:0},
+    empezado:false
+  });
+
+  escuchar();
 }
 
 // unirse
 function unirse(){
-sala=document.getElementById("codigo").value.toUpperCase();
-grupo=document.getElementById("grupo").value;
-let nombre=document.getElementById("nombre").value;
+  sala=document.getElementById("codigo").value.toUpperCase();
+  grupo=document.getElementById("grupo").value;
+  let nombre=document.getElementById("nombre").value;
 
-db.ref("salas/"+sala+"/jugadores/"+nombre).set({
-grupo:grupo
-});
+  db.ref("salas/"+sala+"/jugadores/"+nombre).set({
+    grupo:grupo
+  });
 
-document.getElementById("mensajeUnion").innerText =
-nombre+" unido al grupo "+(parseInt(grupo)+1);
+  document.getElementById("mensajeUnion").innerText =
+    nombre+" añadido al Grupo "+(parseInt(grupo)+1);
 
-escuchar();
+  escuchar();
 }
 
 // escuchar
 function escuchar(){
-db.ref("salas/"+sala).on("value",snap=>{
-let d=snap.val(); if(!d)return;
+  db.ref("salas/"+sala).on("value",snap=>{
+    let d=snap.val(); if(!d)return;
 
-// jugadores en verde
-let html="<b>Jugadores:</b><br>";
-for(let j in d.jugadores){
-html += "<div class='jugador'>"+j+" (Grupo "+(parseInt(d.jugadores[j].grupo)+1)+")</div>";
-}
-document.getElementById("jugadores").innerHTML=html;
+    let html="";
+    for(let j in d.jugadores){
+      html += `<div class="jugador">${j} (G${parseInt(d.jugadores[j].grupo)+1})</div>`;
+    }
+    document.getElementById("jugadores").innerHTML=html;
 
-// ocultar al empezar
-if(d.empezado){
-document.getElementById("jugadores").innerHTML="";
-}
-});
+    if(d.empezado){
+      document.getElementById("jugadores").innerHTML="";
+    }
+  });
+
+  escucharRanking();
 }
 
 // empezar
 function empezar(){
-db.ref("salas/"+sala).update({empezado:true});
+  db.ref("salas/"+sala).update({empezado:true});
 }
 
-// reset ranking
-function resetRanking(){
-let clave=prompt("Contraseña:");
-if(clave==="mat"){
-db.ref("ranking").set(null);
+// ranking
+function escucharRanking(){
+  db.ref("ranking").on("value",snap=>{
+    let r=snap.val()||{};
+    let html="";
+    for(let i=0;i<4;i++){
+      html += `Grupo ${i+1}: ${r[i]||0} puntos<br>`;
+    }
+    document.getElementById("ranking").innerHTML=html;
+  });
 }
+
+// reset
+function resetRanking(){
+  let clave=prompt("Contraseña:");
+  if(clave==="mat"){
+    db.ref("ranking").set(null);
+  }else{
+    alert("Incorrecta");
+  }
 }
 </script>
 
 </body>
 </html>
+
 
