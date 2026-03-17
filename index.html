@@ -1,601 +1,380 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GeoGebra por pasos</title>
-  <style>
-    :root {
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --line: #dbe3ee;
-      --accent: #2563eb;
-      --accent-soft: #dbeafe;
-      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-      --radius: 22px;
-    }
+<meta charset="UTF-8">
+<title>🎮 Juegos de Carrera</title>
 
-    * { box-sizing: border-box; }
+<style>
+body { font-family: Arial; background:#111; color:white; text-align:center; }
 
-    body {
-      margin: 0;
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, #eff6ff 0, #eff6ff 14%, transparent 15%),
-        linear-gradient(180deg, #f8fbff 0%, #f3f6fb 100%);
-      min-height: 100vh;
-    }
+.pantalla { display:none; }
+.activa { display:block; }
 
-    .app {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+#pista {
+  width:90%;
+  height:260px;
+  margin:20px auto;
+  border:2px solid white;
+  position:relative;
+}
 
-    .hero {
-      background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-    }
+.meta {
+  position:absolute;
+  right:0;
+  width:20px;
+  height:100%;
+  background: repeating-linear-gradient(
+    0deg, white 0px, white 10px, black 10px, black 20px
+  );
+}
 
-    .hero h1 {
-      margin: 0 0 8px;
-      font-size: clamp(1.8rem, 3vw, 2.8rem);
-      line-height: 1.05;
-    }
+.personaje {
+  position:absolute;
+  font-size:32px;
+  transition:0.4s linear;
+}
 
-    .hero p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 1rem;
-      max-width: 900px;
-    }
+#c0 { top:10%; }
+#c1 { top:35%; }
+#c2 { top:60%; }
+#c3 { top:85%; }
 
-    .layout {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 20px;
-      align-items: start;
-    }
+#mensajeUnion {
+  margin-top:10px;
+  font-size:18px;
+  color: lightgreen;
+}
 
-    .panel {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .sidebar {
-      padding: 20px;
-      position: sticky;
-      top: 18px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 0.9rem;
-      margin-bottom: 14px;
-    }
-
-    .progress-wrap {
-      margin: 12px 0 18px;
-    }
-
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      color: var(--muted);
-      font-size: 0.92rem;
-      margin-bottom: 8px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 12px;
-      background: #e8eef8;
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #2563eb, #38bdf8);
-      border-radius: 999px;
-      transition: width 0.25s ease;
-    }
-
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin: 16px 0 18px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 16px;
-      padding: 12px 14px;
-      font-size: 0.98rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.2s ease;
-    }
-
-    button:hover { transform: translateY(-1px); }
-    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-
-    .primary {
-      background: linear-gradient(135deg, #2563eb, #3b82f6);
-      color: white;
-      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
-    }
-
-    .secondary {
-      background: #eef2f7;
-      color: #1f2937;
-    }
-
-    .ghost {
-      width: 100%;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      color: var(--text);
-      margin-top: 8px;
-    }
-
-    .step-list {
-      display: grid;
-      gap: 8px;
-      max-height: 48vh;
-      overflow: auto;
-      padding-right: 2px;
-    }
-
-    .step-list button {
-      text-align: left;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      box-shadow: none;
-      padding: 12px;
-    }
-
-    .step-list button.active {
-      background: #eff6ff;
-      border-color: #93c5fd;
-      color: #1d4ed8;
-    }
-
-    .main {
-      padding: 20px;
-    }
-
-    .card {
-      background: #fbfdff;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 18px;
-    }
-
-    .step-title {
-      font-size: clamp(1.4rem, 2.4vw, 2rem);
-      margin: 0 0 6px;
-    }
-
-    .step-subtitle {
-      color: var(--accent);
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      margin-bottom: 10px;
-    }
-
-    .instruction {
-      font-size: 1.08rem;
-      line-height: 1.6;
-      margin-bottom: 14px;
-    }
-
-    .tip {
-      background: #effdf8;
-      border: 1px solid #c7f0e1;
-      color: #115e59;
-      border-radius: 16px;
-      padding: 12px 14px;
-      font-size: 0.96rem;
-    }
-
-    .tool-chip, .goal-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 0.92rem;
-      font-weight: 700;
-      margin: 0 8px 8px 0;
-    }
-
-    .tool-chip { background: #eff6ff; color: #1d4ed8; }
-    .goal-chip { background: #f5f3ff; color: #6d28d9; }
-
-    .viewer {
-      background: linear-gradient(180deg, #ffffff, #f8fbff);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      padding: 14px;
-    }
-
-    .viewer-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .legend {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .dot {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-
-    .svg-wrap {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      background: #fff;
-    }
-
-    svg { width: 100%; height: 100%; display: block; }
-
-    .footer-note {
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 0.94rem;
-    }
-
-    @media (max-width: 980px) {
-      .layout { grid-template-columns: 1fr; }
-      .sidebar { position: static; }
-    }
-  </style>
+button:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <section class="hero">
-      <h1>GeoGebra por pasos: construcción geométrica guiada</h1>
-      <p>
-        Aplicación para que el alumnado siga 20 pasos y aprenda a manejar puntos, rectas,
-        semirrectas, paralelas y perpendiculares en GeoGebra. En cada paso aparece una consigna
-        y una imagen guía; el dibujo completo solo se revela al final.
-      </p>
-    </section>
 
-    <div class="layout">
-      <aside class="panel sidebar">
-        <div class="badge">📐 Secuencia guiada de 20 pasos</div>
+<div id="menu" class="pantalla activa">
+  <h1>🎮 Selecciona juego</h1>
+  <button onclick="iniciarModo('camellos')">🐪 Camellos</button>
+  <button onclick="iniciarModo('atletismo')">🏃 Atletismo</button>
+  <button onclick="iniciarModo('caballos')">🐎 Caballos</button>
+</div>
 
-        <div class="progress-wrap">
-          <div class="progress-label">
-            <span>Progreso</span>
-            <strong id="progressText">Paso 1 de 20</strong>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-        </div>
+<div id="juego" class="pantalla">
 
-        <div class="controls">
-          <button class="secondary" id="prevBtn">← Anterior</button>
-          <button class="primary" id="nextBtn">Siguiente →</button>
-        </div>
+<h1 id="titulo"></h1>
 
-        <button class="ghost" id="restartBtn">Reiniciar actividad</button>
+<input id="nombre" placeholder="Nombre">
+<select id="grupo">
+  <option value="0">Grupo 1</option>
+  <option value="1">Grupo 2</option>
+  <option value="2">Grupo 3</option>
+  <option value="3">Grupo 4</option>
+</select>
 
-        <h3>Pasos</h3>
-        <div class="step-list" id="stepList"></div>
-      </aside>
+<br>
 
-      <main class="panel main">
-        <section class="card">
-          <div class="step-subtitle" id="stepNumber">PASO 1</div>
-          <h2 class="step-title" id="stepTitle"></h2>
-          <div class="instruction" id="instruction"></div>
-          <div id="tools"></div>
-          <div id="goal"></div>
-          <div class="tip" id="tip"></div>
-        </section>
+<button id="btnCrear" onclick="crearSala()">Crear sala</button>
+<div id="codigoSala"></div>
 
-        <section class="viewer">
-          <div class="viewer-head">
-            <h3 style="margin:0">Imagen guía del paso</h3>
-            <div class="legend">
-              <span><span class="dot" style="background:#94a3b8"></span>Ya construido</span>
-              <span><span class="dot" style="background:#2563eb"></span>Nuevo en este paso</span>
-              <span><span class="dot" style="background:#dc2626"></span>Puntos clave</span>
-            </div>
-          </div>
-          <div class="svg-wrap">
-            <svg id="scene" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" aria-label="Guía visual del paso actual"></svg>
-          </div>
-          <div class="footer-note" id="footerNote"></div>
-        </section>
-      </main>
-    </div>
-  </div>
+<hr>
 
-  <script>
-    const steps = [
-      { title: 'Crea el punto A', instruction: 'Con la herramienta <strong>Punto</strong> crea el punto <strong>A = (0,0)</strong> exactamente en esas coordenadas.', tool: 'Punto', goal: 'Primer vértice de la construcción', tip: 'Escribe directamente A=(0,0) en la barra de entrada de GeoGebra.', note: 'Debe aparecer el punto A en el origen.' },
-      { title: 'Crea el punto B', instruction: 'Crea el punto <strong>B = (8,0)</strong> usando la barra de entrada o la herramienta punto.', tool: 'Punto', goal: 'Definir la base horizontal', tip: 'A y B deben quedar alineados sobre el eje X.', note: 'El segmento AB mide 8 unidades.' },
-      { title: 'Traza la recta AB', instruction: 'Usa la herramienta <strong>Recta</strong> y selecciona los puntos A y B.', tool: 'Recta', goal: 'Definir la dirección horizontal', tip: 'La recta debe pasar exactamente por A y B.', note: 'Esta recta coincide con la base de la construcción.' },
-      { title: 'Perpendicular por A', instruction: 'Traza una <strong>Perpendicular</strong> a la recta AB que pase por A.', tool: 'Perpendicular', goal: 'Crear el lado izquierdo', tip: 'Debe ser vertical porque AB es horizontal.', note: 'Es una recta paralela al eje Y.' },
-      { title: 'Perpendicular por B', instruction: 'Repite la herramienta perpendicular usando la recta AB y el punto B.', tool: 'Perpendicular', goal: 'Crear el lado derecho', tip: 'Las dos perpendiculares serán paralelas entre sí.', note: 'Forman dos líneas verticales.' },
-      { title: 'Crea el punto D', instruction: 'Crea el punto <strong>D = (0,5)</strong> sobre la vertical que pasa por A.', tool: 'Punto', goal: 'Altura izquierda', tip: 'Puedes escribir D=(0,5).', note: 'Este punto marca la altura superior.' },
-      { title: 'Paralela por D', instruction: 'Dibuja una <strong>Paralela</strong> a AB que pase por el punto D.', tool: 'Paralela', goal: 'Parte superior horizontal', tip: 'Debe ser horizontal como AB.', note: 'Será la línea superior.' },
-      { title: 'Intersección C', instruction: 'Marca el punto <strong>C</strong> donde la paralela por D corta la vertical por B. Sus coordenadas serán <strong>C = (8,5)</strong>.', tool: 'Intersección', goal: 'Cerrar el rectángulo principal', tip: 'GeoGebra puede calcularlo automáticamente.', note: 'Ahora hay cuatro vértices.' },
-      { title: 'Semirrecta desde D', instruction: 'Crea una <strong>Semirrecta</strong> que salga de D hacia arriba a la derecha pasando por el punto <strong>(4,8)</strong>.', tool: 'Semirrecta', goal: 'Primera pendiente', tip: 'Puedes crear primero un punto auxiliar (4,8).', note: 'Empieza el tejado.' },
-      { title: 'Semirrecta desde C', instruction: 'Dibuja otra semirrecta desde C hacia arriba a la izquierda pasando por <strong>(4,8)</strong>.', tool: 'Semirrecta', goal: 'Segunda pendiente', tip: 'Las dos deben encontrarse arriba.', note: 'Se formará el vértice superior.' },
-      { title: 'Vértice superior T', instruction: 'Marca el punto de intersección de las dos semirrectas: <strong>T = (4,8)</strong>.', tool: 'Intersección', goal: 'Punto más alto', tip: 'Ese punto será el centro del tejado.', note: 'T es el punto más alto.' },
-      { title: 'Punto medio', instruction: 'Crea el punto <strong>M = (4,0)</strong> en el centro del segmento AB.', tool: 'Punto', goal: 'Eje central', tip: 'Está justo entre A y B.', note: 'Divide la base en dos.' },
-      { title: 'Punto puerta izquierda', instruction: 'Crea el punto <strong>P = (3,0)</strong>.', tool: 'Punto', goal: 'Lado izquierdo de la puerta', tip: 'Debe quedar cerca del centro.', note: 'Servirá para levantar la puerta.' },
-      { title: 'Perpendicular por P', instruction: 'Traza una perpendicular a AB que pase por P.', tool: 'Perpendicular', goal: 'Lado izquierdo de la puerta', tip: 'Será una línea vertical.', note: 'Forma un borde de la puerta.' },
-      { title: 'Punto puerta derecha', instruction: 'Crea el punto <strong>Q = (5,0)</strong>.', tool: 'Punto', goal: 'Lado derecho de la puerta', tip: 'Debe quedar simétrico respecto a M.', note: 'Ancho de la puerta.' },
-      { title: 'Perpendicular por Q', instruction: 'Dibuja una perpendicular a AB que pase por Q.', tool: 'Perpendicular', goal: 'Lado derecho de la puerta', tip: 'Debe ser paralela a la de P.', note: 'Ya hay dos lados.' },
-      { title: 'Altura puerta', instruction: 'Crea el punto <strong>R = (3,3)</strong> sobre la vertical de P.', tool: 'Punto', goal: 'Altura de la puerta', tip: 'Está a tres unidades del suelo.', note: 'Define la parte superior.' },
-      { title: 'Paralela superior puerta', instruction: 'Traza una paralela a AB que pase por R.', tool: 'Paralela', goal: 'Cerrar puerta', tip: 'Cortará la vertical por Q.', note: 'Forma el borde superior.' },
-      { title: 'Ventana', instruction: 'Crea una pequeña ventana usando los puntos <strong>(6,3)</strong>, <strong>(7,3)</strong>, <strong>(6,4)</strong> y rectas verticales y horizontales.', tool: 'Punto + Rectas', goal: 'Detalle interior', tip: 'Debe quedar sobre la puerta.', note: 'Puedes formar un cuadrado.' },
-      { title: 'Figura final', instruction: 'Observa toda la construcción completa. La figura resultante es una casa formada con coordenadas exactas y construcciones geométricas.', tool: 'Revisión', goal: 'Ver la figura final', tip: 'Puedes colorearla en GeoGebra.', note: 'Actividad completada.' }
-    ];
+<input id="codigo" placeholder="Código">
+<button onclick="unirse()">Unirse</button>
 
-    let currentStep = 0;
+<h3 id="mensajeUnion"></h3>
 
-    const stepTitle = document.getElementById('stepTitle');
-    const instruction = document.getElementById('instruction');
-    const tip = document.getElementById('tip');
-    const tools = document.getElementById('tools');
-    const goal = document.getElementById('goal');
-    const progressText = document.getElementById('progressText');
-    const progressFill = document.getElementById('progressFill');
-    const stepNumber = document.getElementById('stepNumber');
-    const footerNote = document.getElementById('footerNote');
-    const scene = document.getElementById('scene');
-    const stepList = document.getElementById('stepList');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const restartBtn = document.getElementById('restartBtn');
+<br><br>
 
-    const originX = 170;
-    const originY = 380;
-    const scale = 45;
+<button onclick="empezar()">🚀 Empezar carrera</button>
 
-    function toSvgX(x) {
-      return originX + x * scale;
+<h2 id="pregunta"></h2>
+<h3 id="timer"></h3>
+<h3 id="resultado"></h3>
+
+<input id="respuesta">
+<button onclick="responder()">Responder</button>
+
+<h2 id="ganador"></h2>
+
+<div id="pista">
+  <div class="meta"></div>
+  <div id="c0" class="personaje"></div>
+  <div id="c1" class="personaje"></div>
+  <div id="c2" class="personaje"></div>
+  <div id="c3" class="personaje"></div>
+</div>
+
+<h2>🏆 Ranking global</h2>
+<div id="ranking"></div>
+
+<br>
+<button onclick="resetRanking()">🗑️ Reset ranking</button>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAgA1B1liq0K6pHn1HqpQ8hXZbxVgqrEt4",
+  authDomain: "camellos-dcf0d.firebaseapp.com",
+  databaseURL: "https://camellos-dcf0d-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "camellos-dcf0d"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let modo="camellos";
+let sala=null, grupo=null;
+let META=20;
+let tiempo=40, intervalo, respondido=false;
+let preguntaActual=null;
+
+// modo
+function iniciarModo(m){
+  modo=m;
+  document.getElementById("menu").classList.remove("activa");
+  document.getElementById("juego").classList.add("activa");
+
+  if(m==="camellos"){
+    document.getElementById("titulo").innerText="🐪 Carrera de Camellos";
+    poner("🐫➡️");
+    document.getElementById("pista").style.background="#222";
+  } else if(m==="atletismo"){
+    document.getElementById("titulo").innerText="🏃 Carrera de Atletismo";
+    poner("🏃‍♂️➡️");
+    document.getElementById("pista").style.background="#8B4513";
+  } else {
+    document.getElementById("titulo").innerText="🐎 Carrera de Caballos";
+    poner("🐎➡️");
+    document.getElementById("pista").style.background="#3a3a3a";
+  }
+}
+
+function poner(icono){
+  for(let i=0;i<4;i++){
+    document.getElementById("c"+i).innerText=icono;
+  }
+}
+
+// preguntas 0–360
+function nuevaPregunta(){
+  let g=Math.floor(Math.random()*361);
+  let m=Math.floor(Math.random()*60);
+
+  if(Math.random()>0.5){
+    return {
+      texto:`${g}° ${m}' → minutos`,
+      respuesta:g*60+m,
+      tipo:"minutos"
+    };
+  } else {
+    return {
+      texto:`${g}° ${m}' → grados`,
+      respuesta:g+(m/60),
+      tipo:"grados"
+    };
+  }
+}
+
+// crear sala
+function crearSala(){
+  if(sala !== null) return;
+
+  sala=Math.random().toString(36).substring(2,6).toUpperCase();
+  grupo=document.getElementById("grupo").value;
+
+  document.getElementById("codigoSala").innerText=sala;
+  document.getElementById("btnCrear").disabled = true;
+
+  db.ref("salas/"+sala).set({
+    jugadores:{0:{pos:0},1:{pos:0},2:{pos:0},3:{pos:0}},
+    empezado:false,
+    terminado:false
+  });
+
+  escuchar();
+}
+
+// unirse
+function unirse(){
+  sala=document.getElementById("codigo").value.toUpperCase();
+  grupo=document.getElementById("grupo").value;
+  let nombre=document.getElementById("nombre").value;
+
+  if(nombre===""){ alert("Escribe tu nombre"); return; }
+  if(sala===""){ alert("Escribe el código"); return; }
+
+  document.getElementById("mensajeUnion").innerText =
+    nombre + " te has añadido al Grupo " + (parseInt(grupo)+1);
+
+  escuchar();
+}
+
+// empezar
+function empezar(){
+  db.ref("salas/"+sala).update({empezado:true});
+}
+
+// escuchar
+function escuchar(){
+  db.ref("salas/"+sala).on("value",snap=>{
+    const d=snap.val(); if(!d)return;
+
+    for(let i=0;i<4;i++){
+      let x=(d.jugadores[i].pos/META)*100;
+      document.getElementById("c"+i).style.left=x+"%";
     }
 
-    function toSvgY(y) {
-      return originY - y * scale;
+    if(d.empezado && !intervalo){
+      nuevaRonda();
     }
 
-    function pointMarkup(name, x, y, active = false, showCoords = true) {
-      const px = toSvgX(x);
-      const py = toSvgY(y);
-      const label = showCoords ? `${name} (${x},${y})` : name;
-      return `
-        <circle cx="${px}" cy="${py}" r="6" fill="${active ? '#dc2626' : '#475569'}" />
-        <circle cx="${px}" cy="${py}" r="10" fill="none" stroke="${active ? '#fca5a5' : 'transparent'}" stroke-width="4" />
-        <text x="${px + 10}" y="${py - 10}" font-size="16" font-weight="700" fill="#0f172a">${label}</text>
-      `;
+    if(d.terminado){
+      mostrarGanador();
+      clearInterval(intervalo);
+    }
+  });
+
+  escucharRanking();
+}
+
+// ronda
+function nuevaRonda(){
+  preguntaActual=nuevaPregunta();
+  document.getElementById("pregunta").innerText=preguntaActual.texto;
+  iniciarTimer();
+}
+
+// timer
+function iniciarTimer(){
+  clearInterval(intervalo);
+  tiempo=40;
+  respondido=false;
+  document.getElementById("resultado").innerText="";
+
+  intervalo=setInterval(()=>{
+    document.getElementById("timer").innerText="Tiempo: "+tiempo;
+    tiempo--;
+    if(tiempo<0) nuevaRonda();
+  },1000);
+}
+
+// responder
+function responder(){
+  let val=document.getElementById("respuesta").value.trim();
+  if(val===""||respondido)return;
+  respondido=true;
+
+  val = val.replace(",", ".");
+
+  let correcto=false;
+
+  if(preguntaActual.tipo==="minutos"){
+    correcto = Number(val) === preguntaActual.respuesta;
+  }else{
+    correcto = Math.abs(Number(val)-preguntaActual.respuesta)<0.01;
+  }
+
+  let solucion = preguntaActual.tipo==="grados"
+    ? preguntaActual.respuesta.toFixed(2)
+    : preguntaActual.respuesta;
+
+  document.getElementById("resultado").innerText =
+    correcto ? "✅ Correcto" : "❌ Incorrecto → Correcto: " + solucion;
+
+  db.ref("salas/"+sala).once("value").then(snap=>{
+    let d=snap.val();
+    let pos=d.jugadores[grupo].pos;
+
+    if(correcto){
+      pos++;
+    }else{
+      pos--;
+      if(pos<0) pos=0;
     }
 
-    function segmentMarkup(x1, y1, x2, y2, active = false, dashed = false) {
-      return `<line x1="${toSvgX(x1)}" y1="${toSvgY(y1)}" x2="${toSvgX(x2)}" y2="${toSvgY(y2)}" stroke="${active ? '#2563eb' : '#94a3b8'}" stroke-width="${active ? 5 : 3}" ${dashed ? 'stroke-dasharray="10 8"' : ''} stroke-linecap="round" />`;
-    }
-
-    function infiniteHorizontalMarkup(y, active = false) {
-      return `<line x1="0" y1="${toSvgY(y)}" x2="900" y2="${toSvgY(y)}" stroke="${active ? '#2563eb' : '#94a3b8'}" stroke-width="${active ? 5 : 3}" />`;
-    }
-
-    function infiniteVerticalMarkup(x, active = false) {
-      return `<line x1="${toSvgX(x)}" y1="0" x2="${toSvgX(x)}" y2="520" stroke="${active ? '#2563eb' : '#94a3b8'}" stroke-width="${active ? 5 : 3}" />`;
-    }
-
-    function rayMarkup(x1, y1, x2, y2, active = false) {
-      return `<line x1="${toSvgX(x1)}" y1="${toSvgY(y1)}" x2="${toSvgX(x2)}" y2="${toSvgY(y2)}" stroke="${active ? '#2563eb' : '#94a3b8'}" stroke-width="${active ? 5 : 3}" marker-end="url(#arrow)" stroke-linecap="round" />`;
-    }
-
-    function renderStepList() {
-      stepList.innerHTML = '';
-      steps.forEach((step, index) => {
-        const btn = document.createElement('button');
-        btn.textContent = `${index + 1}. ${step.title}`;
-        btn.className = index === currentStep ? 'active' : '';
-        btn.addEventListener('click', () => {
-          currentStep = index;
-          render();
-        });
-        stepList.appendChild(btn);
+    if(pos>=META){
+      db.ref("salas/"+sala).update({
+        terminado:true,
+        posiciones:ordenar(d.jugadores)
       });
+      asignarPuntos(d.jugadores);
     }
 
-    function drawGridAndAxes() {
-      let markup = `
-        <defs>
-          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
-            <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"></path>
-          </marker>
-        </defs>
-      `;
+    db.ref(`salas/${sala}/jugadores/${grupo}`).update({pos});
+  });
 
-      for (let x = 0; x <= 900; x += scale) {
-        markup += `<line x1="${x}" y1="0" x2="${x}" y2="520" stroke="#e5e7eb" stroke-width="1" />`;
-      }
-      for (let y = 0; y <= 520; y += scale) {
-        markup += `<line x1="0" y1="${y}" x2="900" y2="${y}" stroke="#e5e7eb" stroke-width="1" />`;
-      }
+  document.getElementById("respuesta").value="";
+  setTimeout(()=>nuevaRonda(),500);
+}
 
-      markup += `<line x1="0" y1="${originY}" x2="900" y2="${originY}" stroke="#111827" stroke-width="3" />`;
-      markup += `<line x1="${originX}" y1="0" x2="${originX}" y2="520" stroke="#111827" stroke-width="3" />`;
+// ordenar
+function ordenar(j){
+  return Object.entries(j)
+    .sort((a,b)=>b[1].pos-a[1].pos)
+    .map(e=>e[0]);
+}
 
-      for (let i = 0; i <= 9; i++) {
-        const x = toSvgX(i);
-        const y = toSvgY(i);
-        markup += `<line x1="${x}" y1="${originY - 6}" x2="${x}" y2="${originY + 6}" stroke="#111827" stroke-width="2" />`;
-        markup += `<text x="${x - 4}" y="${originY + 20}" font-size="14" fill="#111827">${i}</text>`;
-        markup += `<line x1="${originX - 6}" y1="${y}" x2="${originX + 6}" y2="${y}" stroke="#111827" stroke-width="2" />`;
-        markup += `<text x="${originX - 24}" y="${y + 4}" font-size="14" fill="#111827">${i}</text>`;
-      }
+// puntos
+function asignarPuntos(j){
+  let orden=ordenar(j);
+  let pts=[5,3,1];
 
-      markup += `<text x="${toSvgX(9) + 14}" y="${originY - 10}" font-size="16" font-weight="700" fill="#111827">x</text>`;
-      markup += `<text x="${originX + 10}" y="18" font-size="16" font-weight="700" fill="#111827">y</text>`;
-      return markup;
+  orden.forEach((g,i)=>{
+    if(i<3){
+      db.ref("ranking/"+g).transaction(p=>(p||0)+pts[i]);
     }
+  });
+}
 
-    function drawScene(stepIndex) {
-      const s = stepIndex + 1;
-      let shapes = drawGridAndAxes();
+// ganador
+function mostrarGanador(){
+  db.ref("salas/"+sala+"/posiciones").once("value").then(snap=>{
+    let orden=snap.val();
 
-      if (s >= 1) shapes += pointMarkup('A', 0, 0, s === 1);
-      if (s >= 2) shapes += pointMarkup('B', 8, 0, s === 2);
-      if (s >= 3) shapes += segmentMarkup(0, 0, 8, 0, s === 3);
-      if (s >= 4) shapes += infiniteVerticalMarkup(0, s === 4);
-      if (s >= 5) shapes += infiniteVerticalMarkup(8, s === 5);
-      if (s >= 6) shapes += pointMarkup('D', 0, 5, s === 6);
-      if (s >= 7) shapes += infiniteHorizontalMarkup(5, s === 7);
-      if (s >= 8) shapes += pointMarkup('C', 8, 5, s === 8);
-      if (s >= 9) shapes += rayMarkup(0, 5, 4, 8, s === 9);
-      if (s >= 10) shapes += rayMarkup(8, 5, 4, 8, s === 10);
-      if (s >= 11) shapes += pointMarkup('T', 4, 8, s === 11);
-      if (s >= 12) shapes += pointMarkup('M', 4, 0, s === 12);
-      if (s >= 13) shapes += pointMarkup('P', 3, 0, s === 13);
-      if (s >= 14) shapes += infiniteVerticalMarkup(3, s === 14);
-      if (s >= 15) shapes += pointMarkup('Q', 5, 0, s === 15);
-      if (s >= 16) shapes += infiniteVerticalMarkup(5, s === 16);
-      if (s >= 17) shapes += pointMarkup('R', 3, 3, s === 17);
-      if (s >= 18) shapes += infiniteHorizontalMarkup(3, s === 18);
-      if (s >= 19) {
-        shapes += segmentMarkup(6, 3, 7, 3, true);
-        shapes += segmentMarkup(6, 4, 7, 4, true);
-        shapes += segmentMarkup(6, 3, 6, 4, true);
-        shapes += segmentMarkup(7, 3, 7, 4, true);
-        shapes += pointMarkup('W1', 6, 3, false, false);
-        shapes += pointMarkup('W2', 7, 3, false, false);
-        shapes += pointMarkup('W3', 6, 4, false, false);
-      }
-      if (s >= 20) {
-        shapes += `<polygon points="${toSvgX(0)},${toSvgY(5)} ${toSvgX(4)},${toSvgY(8)} ${toSvgX(8)},${toSvgY(5)}" fill="rgba(253,230,138,0.45)" stroke="#ca8a04" stroke-width="2" />`;
-        shapes += `<rect x="${toSvgX(0)}" y="${toSvgY(5)}" width="${8 * scale}" height="${5 * scale}" fill="rgba(191,219,254,0.25)" stroke="#64748b" stroke-width="2" />`;
-        shapes += `<rect x="${toSvgX(3)}" y="${toSvgY(3)}" width="${2 * scale}" height="${3 * scale}" fill="rgba(251,146,60,0.28)" stroke="#c2410c" stroke-width="2" />`;
-        shapes += `<rect x="${toSvgX(6)}" y="${toSvgY(4)}" width="${scale}" height="${scale}" fill="rgba(125,211,252,0.35)" stroke="#0284c7" stroke-width="2" />`;
-      }
+    document.getElementById("ganador").innerText =
+      "🏆 GANA GRUPO "+(parseInt(orden[0])+1);
 
-      scene.innerHTML = shapes;
+    document.getElementById("btnCrear").disabled = false;
+    sala = null;
+  });
+}
+
+// ranking
+function escucharRanking(){
+  db.ref("ranking").on("value",snap=>{
+    let r=snap.val()||{};
+    let html="";
+    for(let i=0;i<4;i++){
+      html += `Grupo ${i+1}: ${r[i]||0} puntos<br>`;
     }
+    document.getElementById("ranking").innerHTML=html;
+  });
+}
 
-    function render() {
-      const step = steps[currentStep];
-      stepTitle.textContent = step.title;
-      instruction.innerHTML = step.instruction;
-      tip.textContent = 'Sugerencia: ' + step.tip;
-      tools.innerHTML = `<span class="tool-chip">Herramienta: ${step.tool}</span>`;
-      goal.innerHTML = `<span class="goal-chip">Meta: ${step.goal}</span>`;
-      stepNumber.textContent = `PASO ${currentStep + 1}`;
-      progressText.textContent = `Paso ${currentStep + 1} de ${steps.length}`;
-      progressFill.style.width = `${((currentStep + 1) / steps.length) * 100}%`;
-      footerNote.textContent = step.note;
-      prevBtn.disabled = currentStep === 0;
-      nextBtn.disabled = currentStep === steps.length - 1;
-      renderStepList();
-      drawScene(currentStep);
+// 🔒 RESET CON CONTRASEÑA
+function resetRanking(){
+  let clave = prompt("Introduce la contraseña:");
+
+  if(clave === "mat"){
+    if(confirm("¿Seguro que quieres borrar el ranking?")){
+      db.ref("ranking").set(null);
     }
+  } else {
+    alert("❌ Contraseña incorrecta");
+  }
+}
 
-    function runTests() {
-      function assert(condition, message) {
-        if (!condition) {
-          throw new Error(message);
-        }
-      }
+// enter
+document.getElementById("respuesta").addEventListener("keypress",e=>{
+  if(e.key==="Enter") responder();
+});
+</script>
 
-      assert(Array.isArray(steps), 'steps debe ser un array');
-      assert(steps.length === 20, 'deben existir 20 pasos');
-      assert(typeof render === 'function', 'render debe existir');
-      assert(typeof drawScene === 'function', 'drawScene debe existir');
-      assert(toSvgX(0) === originX, 'toSvgX usa el origen correcto');
-      assert(toSvgY(0) === originY, 'toSvgY usa el origen correcto');
-      assert(toSvgX(8) - toSvgX(0) === 8 * scale, 'escala horizontal correcta');
-      assert(toSvgY(0) - toSvgY(5) === 5 * scale, 'escala vertical correcta');
-
-      drawScene(0);
-      assert(scene.innerHTML.includes('A (0,0)'), 'el paso 1 muestra A con coordenadas');
-
-      drawScene(19);
-      assert(scene.innerHTML.includes('polygon'), 'el paso final incluye el tejado');
-
-      render();
-      assert(progressText.textContent === 'Paso 1 de 20', 'render actualiza el progreso');
-      assert(stepList.children.length === 20, 'se renderizan los 20 botones de paso');
-
-      console.info('Tests OK');
-    }
-
-    prevBtn.addEventListener('click', () => {
-      if (currentStep > 0) {
-        currentStep -= 1;
-        render();
-      }
-    });
-
-    nextBtn.addEventListener('click', () => {
-      if (currentStep < steps.length - 1) {
-        currentStep += 1;
-        render();
-      }
-    });
-
-    restartBtn.addEventListener('click', () => {
-      currentStep = 0;
-      render();
-    });
-
-    window.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowRight' && currentStep < steps.length - 1) {
-        currentStep += 1;
-        render();
-      } else if (event.key === 'ArrowLeft' && currentStep > 0) {
-        currentStep -= 1;
-        render();
-      }
-    });
-
-    render();
-    runTests();
-  </script>
 </body>
 </html>
