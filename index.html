@@ -8,120 +8,77 @@
 body {
   font-family: 'Segoe UI', sans-serif;
   background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color: white;
-  text-align: center;
-  margin: 0;
-  padding: 20px;
+  color:white;
+  text-align:center;
 }
 
-.pantalla { display: none; }
-.activa { display: block; }
+.pantalla { display:none; }
+.activa { display:block; }
 
-input, select {
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-  border: none;
+button, input, select {
+  padding:10px;
+  margin:5px;
+  border-radius:10px;
+  border:none;
 }
 
 button {
-  padding: 10px 16px;
-  margin: 5px;
-  border: none;
-  border-radius: 10px;
-  background: #00c9ff;
-  color: black;
-  font-weight: bold;
-  cursor: pointer;
+  background:#00c9ff;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-button:hover { background: #92fe9d; }
+button:hover { background:#92fe9d; }
 
 button:disabled {
-  background: gray;
-  cursor: not-allowed;
+  background:gray;
+  cursor:not-allowed;
 }
 
 #pista {
-  width: 90%;
-  height: 260px;
-  margin: 20px auto;
-  border: 3px solid white;
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
-  background: #111;
-}
-
-/* 🔥 Carriles visuales */
-#pista::before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background:
-    linear-gradient(to bottom,
-      transparent 24%, white 25%, transparent 26%,
-      transparent 49%, white 50%, transparent 51%,
-      transparent 74%, white 75%, transparent 76%
-    );
-  opacity: 0.2;
+  width:90%;
+  height:260px;
+  margin:20px auto;
+  border:3px solid white;
+  border-radius:15px;
+  position:relative;
+  background:#111;
 }
 
 .meta {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 20px;
-  height: 100%;
+  position:absolute;
+  right:0;
+  width:20px;
+  height:100%;
   background: repeating-linear-gradient(
-    0deg,
-    white 0px,
-    white 10px,
-    black 10px,
-    black 20px
+    0deg, white 0px, white 10px, black 10px, black 20px
   );
 }
 
 .personaje {
-  position: absolute;
-  font-size: 40px;
-  transition: left 0.35s linear;
-  left: 0;
-  transform: translateY(-50%);
+  position:absolute;
+  font-size:40px;
+  transition:0.3s linear;
+  left:0;
+  transform:translateY(-50%);
 }
 
-/* 🔥 CENTRADO PERFECTO */
-#c0 { top: 12.5%; }
-#c1 { top: 37.5%; }
-#c2 { top: 62.5%; }
-#c3 { top: 87.5%; }
+#c0 { top:12.5%; }
+#c1 { top:37.5%; }
+#c2 { top:62.5%; }
+#c3 { top:87.5%; }
 
-.jugador {
-  color: #00ff88;
-  font-weight: bold;
-  margin: 2px 0;
-}
-
-#codigoSala {
-  font-size: 22px;
-  font-weight: bold;
-  color: #ffd166;
-}
-
-#pregunta { color: #ffe082; }
-#timer { color: #7df9ff; }
-#ganador { color: #ffd166; }
+.jugador { color:#00ff88; font-weight:bold; }
 </style>
 </head>
 
 <body>
 
-<div id="menu" class="pantalla activa">
-  <h1>🎮 Selecciona juego</h1>
-  <button onclick="iniciarModo('camellos')">🐪 Camellos</button>
-  <button onclick="iniciarModo('atletismo')">🏃 Atletismo</button>
-  <button onclick="iniciarModo('caballos')">🐎 Caballos</button>
+<div id="menu" class="activa">
+<h1>🎮 Selecciona juego</h1>
+<button onclick="iniciarModo('camellos')">🐪 Camellos</button>
+<button onclick="iniciarModo('atletismo')">🏃 Atletismo</button>
+<button onclick="iniciarModo('caballos')">🐎 Caballos</button>
 </div>
 
 <div id="juego" class="pantalla">
@@ -151,7 +108,7 @@ button:disabled {
 
 <br>
 
-<button onclick="empezarCarrera()">🚀 Empezar carrera</button>
+<button onclick="empezar()">🚀 Empezar carrera</button>
 
 <h2 id="pregunta"></h2>
 <h3 id="timer"></h3>
@@ -170,10 +127,10 @@ button:disabled {
 <div id="c3" class="personaje"></div>
 </div>
 
-<h2>🏆 Ranking global</h2>
+<h2>🏆 Ranking</h2>
 <div id="ranking"></div>
 
-<button onclick="resetRanking()">🗑️ Reset ranking</button>
+<button onclick="resetRanking()">Reset ranking</button>
 
 </div>
 
@@ -182,10 +139,10 @@ button:disabled {
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyAgA1B1liq0K6pHn1HqpQ8hXZbxVgqrEt4",
-  authDomain: "camellos-dcf0d.firebaseapp.com",
-  databaseURL: "https://camellos-dcf0d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "camellos-dcf0d"
+apiKey: "AIzaSyAgA1B1liq0K6pHn1HqpQ8hXZbxVgqrEt4",
+authDomain: "camellos-dcf0d.firebaseapp.com",
+databaseURL: "https://camellos-dcf0d-default-rtdb.europe-west1.firebasedatabase.app",
+projectId: "camellos-dcf0d"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -194,172 +151,216 @@ const db = firebase.database();
 let modo="camellos", sala=null, grupo=null;
 let META=20, tiempo=40, intervalo=null, respondido=false, preguntaActual=null;
 
+// modo
 function iniciarModo(m){
-  modo=m;
-  document.getElementById("menu").classList.remove("activa");
-  document.getElementById("juego").classList.add("activa");
+modo=m;
+document.getElementById("menu").style.display="none";
+document.getElementById("juego").style.display="block";
 
-  let icono="🐫➡️", fondo="#222";
-  if(m==="atletismo"){ icono="🏃‍♂️➡️"; fondo="#8B4513";}
-  if(m==="caballos"){ icono="🐎➡️"; fondo="#3a3a3a";}
+let icono="🐫➡️";
+if(m==="atletismo") icono="🏃‍♂️➡️";
+if(m==="caballos") icono="🐎➡️";
 
-  document.getElementById("titulo").innerText="Carrera de "+m;
-
-  for(let i=0;i<4;i++){
-    document.getElementById("c"+i).innerText=icono;
-  }
-
-  document.getElementById("pista").style.background=fondo;
+for(let i=0;i<4;i++){
+document.getElementById("c"+i).innerText=icono;
 }
 
+document.getElementById("titulo").innerText="Carrera de "+m;
+}
+
+// preguntas
 function nuevaPregunta(){
-  let g=Math.floor(Math.random()*361);
-  let m=Math.floor(Math.random()*60);
+let g=Math.floor(Math.random()*361);
+let m=Math.floor(Math.random()*60);
 
-  if(Math.random()>0.5){
-    return {texto:`${g}° ${m}' → minutos`,respuesta:g*60+m,tipo:"min"};
-  } else {
-    return {texto:`${g}° ${m}' → grados`,respuesta:g+(m/60),tipo:"deg"};
-  }
+if(Math.random()>0.5){
+return {texto:`${g}° ${m}' → minutos`,respuesta:g*60+m,tipo:"min"};
+}else{
+return {texto:`${g}° ${m}' → grados`,respuesta:g+(m/60),tipo:"deg"};
+}
 }
 
+// crear sala
 function crearSala(){
-  sala=Math.random().toString(36).substring(2,6).toUpperCase();
-  grupo=document.getElementById("grupo").value;
+if(sala!==null)return;
 
-  document.getElementById("codigoSala").innerText="Código: "+sala;
+sala=Math.random().toString(36).substring(2,6).toUpperCase();
+grupo=document.getElementById("grupo").value;
 
-  db.ref("salas/"+sala).set({
-    jugadores:{},
-    posiciones:{0:0,1:0,2:0,3:0},
-    empezado:false,
-    terminado:false
-  });
+document.getElementById("codigoSala").innerText=sala;
+document.getElementById("btnCrear").disabled=true;
 
-  escuchar();
+db.ref("salas/"+sala).set({
+jugadores:{},
+posiciones:{0:0,1:0,2:0,3:0},
+empezado:false,
+terminado:false
+});
+
+escuchar();
 }
 
+// unirse
 function unirse(){
-  sala=document.getElementById("codigo").value.toUpperCase();
-  grupo=document.getElementById("grupo").value;
-  let nombre=document.getElementById("nombre").value;
+sala=document.getElementById("codigo").value.toUpperCase();
+grupo=document.getElementById("grupo").value;
+let nombre=document.getElementById("nombre").value;
 
-  db.ref("salas/"+sala+"/jugadores/"+nombre).set({grupo});
+db.ref("salas/"+sala+"/jugadores/"+nombre).set({grupo});
 
-  document.getElementById("mensajeUnion").innerText=
-    nombre+" añadido al Grupo "+(parseInt(grupo)+1);
+document.getElementById("mensajeUnion").innerText=
+nombre+" añadido al Grupo "+(parseInt(grupo)+1);
 
-  escuchar();
+escuchar();
 }
 
+// escuchar
 function escuchar(){
-  db.ref("salas/"+sala).on("value",snap=>{
-    let d=snap.val(); if(!d)return;
+db.ref("salas/"+sala).on("value",snap=>{
+let d=snap.val(); if(!d)return;
 
-    let html="";
-    if(!d.empezado){
-      for(let j in d.jugadores){
-        html+=`<div class="jugador">${j} (G${parseInt(d.jugadores[j].grupo)+1})</div>`;
-      }
-    }
-    document.getElementById("jugadores").innerHTML=html;
+// botón crear sala
+document.getElementById("btnCrear").disabled = !d.terminado;
 
-    for(let i=0;i<4;i++){
-      let x=(d.posiciones[i]/META)*100;
-      document.getElementById("c"+i).style.left=x+"%";
-    }
+// jugadores
+let html="";
+if(!d.empezado){
+for(let j in d.jugadores){
+html+=`<div class="jugador">${j} (G${parseInt(d.jugadores[j].grupo)+1})</div>`;
+}
+}
+document.getElementById("jugadores").innerHTML=html;
 
-    if(d.empezado && !intervalo){
-      nuevaRonda();
-    }
-
-    if(d.terminado){
-      clearInterval(intervalo);
-      document.getElementById("ganador").innerText=
-        "🏆 GANA GRUPO "+(parseInt(d.ganador)+1);
-    }
-  });
-
-  escucharRanking();
+// posiciones
+for(let i=0;i<4;i++){
+let x=(d.posiciones[i]/META)*100;
+document.getElementById("c"+i).style.left=x+"%";
 }
 
-function empezarCarrera(){
-  db.ref("salas/"+sala).update({empezado:true});
+// empezar
+if(d.empezado && !intervalo){
+nuevaRonda();
 }
 
+// terminar
+if(d.terminado){
+clearInterval(intervalo);
+intervalo=null;
+
+document.getElementById("ganador").innerText=
+"🏆 GANA GRUPO "+(parseInt(d.ganador)+1);
+}
+});
+
+escucharRanking();
+}
+
+// empezar
+function empezar(){
+db.ref("salas/"+sala).update({empezado:true});
+}
+
+// ronda
 function nuevaRonda(){
-  preguntaActual=nuevaPregunta();
-  document.getElementById("pregunta").innerText=preguntaActual.texto;
-  iniciarTimer();
+preguntaActual=nuevaPregunta();
+document.getElementById("pregunta").innerText=preguntaActual.texto;
+iniciarTimer();
 }
 
+// timer
 function iniciarTimer(){
-  clearInterval(intervalo);
-  tiempo=40;
-  respondido=false;
-  intervalo=setInterval(()=>{
-    document.getElementById("timer").innerText="Tiempo: "+tiempo;
-    tiempo--;
-    if(tiempo<0){ clearInterval(intervalo); nuevaRonda(); }
-  },1000);
+clearInterval(intervalo);
+tiempo=40;
+respondido=false;
+
+intervalo=setInterval(()=>{
+document.getElementById("timer").innerText="Tiempo: "+tiempo;
+tiempo--;
+if(tiempo<0){ clearInterval(intervalo); nuevaRonda(); }
+},1000);
 }
 
+// responder
 function responder(){
-  let val=document.getElementById("respuesta").value.trim();
-  if(val===""||respondido)return;
-  respondido=true;
+let val=document.getElementById("respuesta").value.trim();
+if(val===""||respondido)return;
+respondido=true;
 
-  val=val.replace(",",".");
-  let correcto=false;
+val=val.replace(",",".");
+let correcto=false;
 
-  if(preguntaActual.tipo==="min"){
-    correcto=Number(val)===preguntaActual.respuesta;
-  }else{
-    correcto=Math.abs(Number(val)-preguntaActual.respuesta)<0.01;
-  }
-
-  document.getElementById("resultado").innerText=
-    correcto?"✅ Correcto":"❌ Incorrecto";
-
-  db.ref("salas/"+sala).once("value").then(snap=>{
-    let d=snap.val();
-    let pos=d.posiciones[grupo];
-
-    if(correcto) pos++;
-    else { pos--; if(pos<0) pos=0; }
-
-    let updates={};
-    updates[`salas/${sala}/posiciones/${grupo}`]=pos;
-
-    if(pos>=META){
-      updates[`salas/${sala}/terminado`]=true;
-      updates[`salas/${sala}/ganador`]=grupo;
-    }
-
-    db.ref().update(updates);
-  });
-
-  document.getElementById("respuesta").value="";
-  setTimeout(nuevaRonda,500);
+if(preguntaActual.tipo==="min"){
+correcto=Number(val)===preguntaActual.respuesta;
+}else{
+correcto=Math.abs(Number(val)-preguntaActual.respuesta)<0.01;
 }
 
+document.getElementById("resultado").innerText=
+correcto?"✅ Correcto":"❌ Incorrecto";
+
+db.ref("salas/"+sala).once("value").then(snap=>{
+let d=snap.val();
+let pos=d.posiciones[grupo];
+
+if(correcto) pos++;
+else { pos--; if(pos<0) pos=0; }
+
+let updates={};
+updates[`salas/${sala}/posiciones/${grupo}`]=pos;
+
+if(pos>=META){
+updates[`salas/${sala}/terminado`]=true;
+updates[`salas/${sala}/ganador`]=grupo;
+db.ref().update(updates).then(()=>asignarPuntos());
+}else{
+db.ref().update(updates);
+}
+});
+
+document.getElementById("respuesta").value="";
+setTimeout(nuevaRonda,500);
+}
+
+// 🔥 puntos
+function asignarPuntos(){
+db.ref("salas/"+sala+"/posiciones").once("value").then(snap=>{
+let posiciones=snap.val();
+
+let orden=Object.entries(posiciones)
+.sort((a,b)=>b[1]-a[1])
+.map(e=>e[0]);
+
+let pts=[5,3,1];
+
+orden.forEach((g,i)=>{
+if(i<3){
+db.ref("ranking/"+g).transaction(p=>(p||0)+pts[i]);
+}
+});
+});
+}
+
+// ranking
 function escucharRanking(){
-  db.ref("ranking").on("value",snap=>{
-    let r=snap.val()||{};
-    let html="";
-    for(let i=0;i<4;i++){
-      html+=`Grupo ${i+1}: ${r[i]||0} puntos<br>`;
-    }
-    document.getElementById("ranking").innerHTML=html;
-  });
+db.ref("ranking").on("value",snap=>{
+let r=snap.val()||{};
+let html="";
+for(let i=0;i<4;i++){
+html+=`Grupo ${i+1}: ${r[i]||0} puntos<br>`;
+}
+document.getElementById("ranking").innerHTML=html;
+});
 }
 
+// reset
 function resetRanking(){
-  let clave=prompt("Contraseña:");
-  if(clave==="mat") db.ref("ranking").set(null);
+let clave=prompt("Contraseña:");
+if(clave==="mat") db.ref("ranking").set(null);
 }
 </script>
 
 </body>
 </html>
+
+
 
